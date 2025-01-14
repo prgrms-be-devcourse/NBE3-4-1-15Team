@@ -1,9 +1,12 @@
 package com.nbe.NBE3_4_1_Team15.domain.member.entity;
 
 import com.nbe.NBE3_4_1_Team15.domain.member.type.MemberType;
+import com.nbe.NBE3_4_1_Team15.domain.product.entity.Product;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,4 +27,7 @@ public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private MemberType memberType;
+
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    List<Product> products; // 판매상품, 회원 도메인에 생명주기가 의존적이므로 영속성 전이 PERSIST, REMOVE 적용
 }
