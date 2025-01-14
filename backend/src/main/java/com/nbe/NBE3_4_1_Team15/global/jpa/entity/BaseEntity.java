@@ -1,0 +1,19 @@
+package com.nbe.NBE3_4_1_Team15.global.jpa.entity;
+
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.PRIVATE)
+    @EqualsAndHashCode.Include
+    private Long id;
+}
