@@ -1,8 +1,7 @@
 package com.nbe.NBE3_4_1_Team15.domain.product.entity;
 
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
-import com.nbe.NBE3_4_1_Team15.domain.member.type.MemberType;
-import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseEntity;
+import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,17 +11,17 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product extends BaseEntity {
+public class Product extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
-    Member member;
+    private Member member;
 
-    String name;
+    private String name;
 
-    Integer price;
+    private Integer price;
 
-    String description;
+    private String description;
 
-    String category; // 일단 간단하게 String으로 설정. 나중에 객체로 변경 해야할 수도 있음
+    private String category; // 일단 간단하게 String으로 설정. 나중에 객체로 변경 해야할 수도 있음
 
-    Integer stock;
+    private Integer stock;
 }
