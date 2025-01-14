@@ -2,6 +2,7 @@ package com.nbe.NBE3_4_1_Team15.domain.member.entity;
 
 import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
 import com.nbe.NBE3_4_1_Team15.domain.member.type.MemberType;
+import com.nbe.NBE3_4_1_Team15.domain.order.entity.Order;
 import com.nbe.NBE3_4_1_Team15.domain.product.entity.Product;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseTime;
 import jakarta.persistence.*;
@@ -34,4 +35,7 @@ public class Member extends BaseTime {
 
     @OneToOne
     private Cart cart; // 장바구니
+
+    @OneToMany(mappedBy = "consumer", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    private List<Order> orders;
 }
