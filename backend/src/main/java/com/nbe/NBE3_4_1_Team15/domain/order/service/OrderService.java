@@ -39,4 +39,9 @@ public class OrderService {
     public void delete(Long id) {
         orderRepository.findById(id).ifPresent(orderRepository::delete);
     }
+
+    public Long findById(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("값 없음"));
+    }
 }
