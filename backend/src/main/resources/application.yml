@@ -15,7 +15,7 @@ spring:
 #    driver-class-name: org.h2.Driver
     url: jdbc:mysql://localhost:3306/erd # ?? ??? ? ??
     username: root # ?? username ??
-    password: q1w2e3r4 # ?? password ??
+    password: lldj123414 # ?? password ??
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
