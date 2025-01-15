@@ -2,9 +2,12 @@ package com.nbe.NBE3_4_1_Team15.domain.order.entity;
 
 import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
+import com.nbe.NBE3_4_1_Team15.domain.order.type.OrderType;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Date;
 
 @Entity
 @Getter
@@ -18,7 +21,16 @@ public class Order extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member consumer;
 
-    private Boolean orderStatus;
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
 
     private Integer totalPrice;
+
+    private Date orderDate;
+
+    private Date createAt;
+
+    private Date updateAt;
+
+
 }
