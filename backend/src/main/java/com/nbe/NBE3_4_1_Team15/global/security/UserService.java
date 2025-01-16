@@ -21,17 +21,20 @@ public class UserService {
 //        this.passwordEncoder = passwordEncoder;
 
 
+    // 이메일 중복 확인
     public Member registerUser(String email, String rawPassword) {
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");  // 이메일 중복 확인
-        }
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("이미 사용 중인 이메일입니다."));
 
+        // 비밀번호 암호화 저장
         String encryptedPassword = passwordEncoder.encode(rawPassword);
 
-        // 사용자 저장
-        Member member = new Member();
-        member.setEmail(email);
-        member.setPassword(encryptedPassword);
+        // DB에 회원 저장
+        Member member = Member.builder()
+                .email(email)
+                .password(encryptedPassword)
+                .build();
+
         return userRepository.save(member);
     }
 }
