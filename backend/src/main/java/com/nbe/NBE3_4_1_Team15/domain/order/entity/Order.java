@@ -7,6 +7,7 @@ import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -26,11 +27,11 @@ public class Order extends BaseTime {
 
     private Integer totalPrice;
 
-    private Date orderDate;
+    private LocalDateTime orderDate;
 
-    private Date createAt;
+    private LocalDateTime createAt;
 
-    private Date updateAt;
+    private LocalDateTime updateAt;
 
 
 }
