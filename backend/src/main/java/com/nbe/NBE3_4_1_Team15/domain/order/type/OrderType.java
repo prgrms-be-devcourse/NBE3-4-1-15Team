@@ -1,5 +1,8 @@
 package com.nbe.NBE3_4_1_Team15.domain.order.type;
 
 public enum OrderType {
-    BEFORE_ORDER, COMPLETE_ORDER, APPROVED_ORDER, DELIVERING, COMPLETE_DELIVERY
+    ORDERED,        // 주문완료
+    PAID,           // 결제완료
+    DELIVERY,       // 배송중
+    CANCELED        // 취소됨
 };
