@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
+// 이메일로 사용자 찾기
 public interface UserRepository extends JpaRepository<Member, Long> {
-    Optional<Member> findByEmail(String email); // 이메일로 사용자 찾기
+    Optional<Member> findByEmail(String email);
 }

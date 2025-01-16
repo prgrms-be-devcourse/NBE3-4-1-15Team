@@ -19,21 +19,22 @@ import java.time.LocalDateTime;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    // 회원가입 요청 허용
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers("/h2-console/**")
+                                .requestMatchers("/h2-console/**", "/api/users/register")
                                 .permitAll()
                                 .anyRequest()
-                                .permitAll())
-                .csrf(
-                        csrf -> csrf.disable()
-                );
+                                .authenticated())
+                .csrf(csrf -> csrf.disable());
         return http.build();
     }
 
+    //BBCryptPasswordEncoder 객체를 생성하고 스프링빈에 등록 (이해 필요)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -42,20 +43,21 @@ public class SecurityConfig {
     @Setter
     @Getter
     @Entity
-    public class Member {
+    public static class Member {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
+        // 아이디 = 이메일 (이메일로 아이디 대체)
         @Column(nullable = false, unique = true)
-        private String email; // 아이디 = 이메일 (이메일로 아이디 대체)
+        private String email;
 
+        // 비밀번호
         @Column(nullable = false)
-        private String password; // 비밀번호
+        private String password;
 
-        private LocalDateTime createdAt = LocalDateTime.now(); // 가입시간 표기
-
-
+        // 가입시간 표기
+        private LocalDateTime createdAt = LocalDateTime.now();
     }
 }
