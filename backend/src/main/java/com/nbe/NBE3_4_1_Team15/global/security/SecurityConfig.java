@@ -40,24 +40,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Setter
-    @Getter
-    @Entity
-    public static class Member {
-
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-
-        // 아이디 = 이메일 (이메일로 아이디 대체)
-        @Column(nullable = false, unique = true)
-        private String email;
-
-        // 비밀번호
-        @Column(nullable = false)
-        private String password;
-
-        // 가입시간 표기
-        private LocalDateTime createdAt = LocalDateTime.now();
-    }
 }

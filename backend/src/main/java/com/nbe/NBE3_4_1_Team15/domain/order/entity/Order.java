@@ -8,10 +8,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-<<<<<<< HEAD
-import java.util.Date;
-=======
->>>>>>> 242d40f3cfa8ba6bfd8a6ada82bc44b42d95e36a
 
 @Entity
 @Getter
@@ -25,21 +21,9 @@ public class Order extends BaseTime {
     private Member consumer; // 주문자 정보 (Member와 다대일 관계)
 
     @Enumerated(EnumType.STRING)
-<<<<<<< HEAD
     private OrderType orderType;
 
     private Integer totalPrice;
 
-    private LocalDateTime orderDate;
-
-    private LocalDateTime createAt;
-
-    private LocalDateTime updateAt;
-
-=======
-    private OrderType orderType; // 주문 상태 (Enum으로 관리)
->>>>>>> 242d40f3cfa8ba6bfd8a6ada82bc44b42d95e36a
-
-    private Integer totalPrice; // 주문 총 금액
-    private LocalDateTime orderDate; // 주문이 이루어진 시간private LocalDateTime orderDate;
+    private LocalDateTime orderDate; // 주문이 이루어진 시간
 }
