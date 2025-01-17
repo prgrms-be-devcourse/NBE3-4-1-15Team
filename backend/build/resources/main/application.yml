@@ -13,15 +13,15 @@ spring:
 #    username: sa
 #    password:
 #    driver-class-name: org.h2.Driver
-    url: jdbc:mysql://localhost:3306/tmp # ?? ??? ? ??
+    url: jdbc:mysql://localhost:3306/temp # ?? ??? ? ??
     username: root # ?? username ??
-    password: lldj123414 # ?? password ??
+    password: 1q2w3e4r # ?? password ??
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     properties:
       hibernate:
         default_batch_fetch_size: 100
