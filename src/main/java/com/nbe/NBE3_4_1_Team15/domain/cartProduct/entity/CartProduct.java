@@ -16,6 +16,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor // JPA에서 기본 생성자 필요
 @AllArgsConstructor // 모든 필드를 사용하는 생성자 자동 생성
+// CartProduct.java git 업로드용 주석 추가
 public class CartProduct extends BaseTime {
 
     @ManyToOne(fetch = FetchType.LAZY)

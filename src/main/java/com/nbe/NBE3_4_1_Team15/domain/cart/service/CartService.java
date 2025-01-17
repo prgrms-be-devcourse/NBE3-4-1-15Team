@@ -6,7 +6,7 @@ import com.nbe.NBE3_4_1_Team15.domain.cartProduct.entity.CartProduct;
 import com.nbe.NBE3_4_1_Team15.domain.cartProduct.repository.CartProductRepository;
 import com.nbe.NBE3_4_1_Team15.domain.product.entity.Product;
 import org.springframework.stereotype.Service;
-
+// CartService.java git 업로드용 주석 추가
 @Service
 public class CartService {
 
