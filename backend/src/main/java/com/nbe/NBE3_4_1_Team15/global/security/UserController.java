@@ -2,18 +2,18 @@ package com.nbe.NBE3_4_1_Team15.global.security;
 
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.global.security.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/members")
 public class UserController {
-
+//UserSerive와 별개로 사용되는 파일에서 선언
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     //회원가입 정상적으로 완료시 완료 안내
     @PostMapping("/created/members")
@@ -25,4 +25,5 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }
