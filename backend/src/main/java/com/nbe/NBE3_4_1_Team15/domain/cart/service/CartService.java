@@ -1,12 +1,10 @@
-package com.nbe.NBE3_4_1_Team15.domain.cart.service;
+package src.main.java.com.nbe.NBE3_4_1_Team15.domain.cart.service;
 
-import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
-import com.nbe.NBE3_4_1_Team15.domain.cart.repository.CartRepository;
 import com.nbe.NBE3_4_1_Team15.domain.cartProduct.entity.CartProduct;
-import com.nbe.NBE3_4_1_Team15.domain.cartProduct.repository.CartProductRepository;
 import com.nbe.NBE3_4_1_Team15.domain.product.entity.Product;
-import org.springframework.stereotype.Service;
-// CartService.java git 업로드용 주석 추가
+import src.main.java.com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
+import src.main.java.com.nbe.NBE3_4_1_Team15.domain.cart.repository.CartRepository;
+
 @Service
 public class CartService {
 
