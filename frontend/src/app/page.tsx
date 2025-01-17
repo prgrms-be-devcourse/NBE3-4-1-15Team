@@ -47,7 +47,7 @@ export default function OrdersPage() {
             const response = await apiClient.post("/orders", null, {
                 params: {
                     memberId: 1,
-                    orderType: "ORDERED",
+                    orderType: "PAID",
                     totalPrice: 50000,
                 },
             });

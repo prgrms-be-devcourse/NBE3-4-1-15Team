@@ -1,4 +1,4 @@
-package src.main.java.com.nbe.NBE3_4_1_Team15.domain.cart.entity;
+package com.nbe.NBE3_4_1_Team15.domain.cart.entity;
 import com.nbe.NBE3_4_1_Team15.domain.cartProduct.entity.CartProduct;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseEntity;

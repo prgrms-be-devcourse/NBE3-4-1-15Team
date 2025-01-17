@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,4 +69,28 @@ public class OrderService {
         orderRepository.findById(id).ifPresent(orderRepository::delete);
     }
 
+    // 주문 상태 변경 및 배송 처리 (14시 기준 데이터 처리)
+    public OrderDto processDelivery(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderId));
+
+        // 배송 상태 처리
+        if (!OrderType.PAID.equals(order.getOrderType())) {
+            throw new IllegalStateException("Order must be in PAID state to process delivery.");
+        }
+
+        LocalTime cutoffTime = LocalTime.of(14, 0); // 오후 2시 기준
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.toLocalTime().isBefore(cutoffTime)) {
+            order.setOrderType(OrderType.DELIVERY);
+            order.setOrderDate(now.toLocalDate().atStartOfDay()); // 당일 배송
+        } else {
+            order.setOrderType(OrderType.DELIVERY);
+            order.setOrderDate(now.toLocalDate().plusDays(1).atStartOfDay()); // 다음날 배송
+        }
+
+        orderRepository.save(order);
+        return OrderDto.of(order);
+    }
 }

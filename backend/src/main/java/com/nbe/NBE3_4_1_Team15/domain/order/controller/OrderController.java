@@ -52,4 +52,12 @@ public class OrderController {
         orderService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    //주문 상태 변경 및 배송 처리 (14시 기준 데이터 처리)
+    @PostMapping("/process/{orderId}")
+    public ResponseEntity<OrderDto> processOrder(@PathVariable Long orderId) {
+        OrderDto updatedOrder = orderService.processDelivery(orderId);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
 }

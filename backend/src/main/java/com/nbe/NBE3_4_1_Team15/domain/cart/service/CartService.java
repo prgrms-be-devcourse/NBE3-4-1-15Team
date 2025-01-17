@@ -1,20 +1,20 @@
-package src.main.java.com.nbe.NBE3_4_1_Team15.domain.cart.service;
+package com.nbe.NBE3_4_1_Team15.domain.cart.service;
 
 import com.nbe.NBE3_4_1_Team15.domain.cartProduct.entity.CartProduct;
+import com.nbe.NBE3_4_1_Team15.domain.cartProduct.repository.CartProductRepository;
 import com.nbe.NBE3_4_1_Team15.domain.product.entity.Product;
-import src.main.java.com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
-import src.main.java.com.nbe.NBE3_4_1_Team15.domain.cart.repository.CartRepository;
+import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
+import com.nbe.NBE3_4_1_Team15.domain.cart.repository.CartRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CartService {
 
     private final CartRepository cartRepository;
     private final CartProductRepository cartProductRepository;
 
-    public CartService(CartRepository cartRepository, CartProductRepository cartProductRepository){
-        this.cartRepository = cartRepository;
-        this.cartProductRepository = cartProductRepository;
-    }
 
 
     // 1. 장바구니 상품 추가
