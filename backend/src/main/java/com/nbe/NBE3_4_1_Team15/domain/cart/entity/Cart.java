@@ -1,5 +1,4 @@
-package com.nbe.NBE3_4_1_Team15.domain.cart.entity;
-
+package src.main.java.com.nbe.NBE3_4_1_Team15.domain.cart.entity;
 import com.nbe.NBE3_4_1_Team15.domain.cartProduct.entity.CartProduct;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseEntity;
@@ -15,7 +14,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "cart")
 public class Cart extends BaseEntity {
+    // cart.java git 업로드용 주석 추가
     @OneToMany(mappedBy = "cart", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<CartProduct> cartProducts; // cart에 있는 상품
 
