@@ -26,7 +26,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers("/h2-console/**", "/api/users/register")
+                                .requestMatchers("/h2-console/**", "/api/users/register","/orders/**")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
@@ -39,5 +39,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
