@@ -1,6 +1,5 @@
 package com.nbe.NBE3_4_1_Team15.domain.order.entity;
 
-import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.order.type.OrderType;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseTime;
