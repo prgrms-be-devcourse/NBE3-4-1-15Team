@@ -1,6 +1,6 @@
 package com.nbe.NBE3_4_1_Team15.domain.order.service;
 
-import com.nbe.NBE3_4_1_Team15.domain.member.entity.MemRepository;
+import com.nbe.NBE3_4_1_Team15.domain.member.repository.MemberRepository;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.order.dto.OrderDto;
 import com.nbe.NBE3_4_1_Team15.domain.order.entity.Order;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final MemRepository memberRepository;
+    private final MemberRepository memberRepository;
     // 모든 주문 내역 조회
     public List<OrderDto> findAll() {
         return orderRepository.findAll().stream()
