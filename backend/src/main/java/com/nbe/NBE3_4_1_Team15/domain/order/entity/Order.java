@@ -1,5 +1,6 @@
 package com.nbe.NBE3_4_1_Team15.domain.order.entity;
 
+import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.order.type.OrderType;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseTime;
@@ -25,4 +26,7 @@ public class Order extends BaseTime {
     private Integer totalPrice;
 
     private LocalDateTime orderDate; // 주문이 이루어진 시간
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Cart cart;
 }
