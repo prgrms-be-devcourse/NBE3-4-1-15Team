@@ -49,19 +49,25 @@ public class OrderService {
     }
 
     //주문 생성
-    public OrderDto create(Long memberId, OrderType orderType, Integer totalPrice){
-        Member consumer = memberRepository.findById(memberId).orElseThrow(()-> new IllegalArgumentException("Member not found"));
+    //memberid는 로그인 시 로그인값에서 가져올거
+    public OrderDto create(Long memberId, Integer totalPrice) {
+        Member consumer = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         Order order = Order.builder()
                 .consumer(consumer)
-                .orderType(orderType)
+                .orderType(OrderType.ORDERED)
+                //기본 주문 값은 ORDERD
                 .totalPrice(totalPrice)
                 .orderDate(LocalDateTime.now())
                 .build();
 
         Order savedOrder = orderRepository.save(order);
 
-        return OrderDto.of(savedOrder);
+        // 디버그용 로그
+        System.out.println("생성된 Order: " + savedOrder);
+
+        return OrderDto.of(savedOrder); // Order 엔티티를 OrderDto로 변환
     }
 
     // 주문 삭제
@@ -70,11 +76,14 @@ public class OrderService {
     }
 
     // 주문 상태 변경 및 배송 처리 (14시 기준 데이터 처리)
+    // 컨트롤러 기준 조회 버튼이 될듯
     public OrderDto processDelivery(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderId));
 
         // 배송 상태 처리
+        //ORDERD가 아닌 PAID일 경우 배송 시작
+        //이건 결제하는 부분 따로 구현안하면 ORDERED로 변경할 예정입니다.
         if (!OrderType.PAID.equals(order.getOrderType())) {
             throw new IllegalStateException("Order must be in PAID state to process delivery.");
         }
@@ -91,6 +100,18 @@ public class OrderService {
         }
 
         orderRepository.save(order);
+        return OrderDto.of(order);
+    }
+
+    //관리자가 상태변경하는 코드
+    public OrderDto orderTypeUpdate(Long orderId, OrderType orderType){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderId));
+
+        order.setOrderType(orderType);
+
+        orderRepository.save(order);
+
         return OrderDto.of(order);
     }
 }
