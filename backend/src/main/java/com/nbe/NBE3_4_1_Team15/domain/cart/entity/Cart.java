@@ -25,10 +25,8 @@ public class Cart extends BaseEntity {
     private List<CartProduct> cartProducts; // cart에 있는 상품
 
     public int getTotalPrice() {
-        int totalPrice = 0;
-        for (CartProduct cartProduct : cartProducts) {
-            totalPrice += cartProduct.getProduct().getPrice() * cartProduct.getQuantity();
-        }
-        return totalPrice;
+        return cartProducts.stream()
+                .mapToInt(CartProduct::getTotalPrice) // CartProduct의 getTotalPrice 호출
+                .sum();
     }
 }

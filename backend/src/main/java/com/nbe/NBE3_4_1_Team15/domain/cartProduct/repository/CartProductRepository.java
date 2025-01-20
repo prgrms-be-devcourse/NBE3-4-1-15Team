@@ -4,5 +4,7 @@ import com.nbe.NBE3_4_1_Team15.domain.cartProduct.entity.CartProduct;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CartProductRepository extends JpaRepository<CartProduct, Long> {
+
+    CartProduct findByCartIdAndProductId(Long id, Long id1);
 }
 
