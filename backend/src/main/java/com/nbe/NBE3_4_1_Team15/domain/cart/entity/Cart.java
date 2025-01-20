@@ -16,7 +16,11 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "cart")
 public class Cart extends BaseEntity {
-    // cart.java git 업로드용 주석 추가
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     @OneToMany(mappedBy = "cart", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<CartProduct> cartProducts; // cart에 있는 상품
 

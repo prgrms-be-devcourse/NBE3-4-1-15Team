@@ -16,7 +16,6 @@ public class CartService {
     private final CartProductRepository cartProductRepository;
 
 
-
     // 1. 장바구니 상품 추가
     public Cart addProductToCart(Cart cart, Product product, int quantity){
         CartProduct cartProduct = new CartProduct(cart, product, quantity);
