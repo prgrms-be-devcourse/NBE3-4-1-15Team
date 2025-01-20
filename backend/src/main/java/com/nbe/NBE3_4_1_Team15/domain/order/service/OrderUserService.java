@@ -1,5 +1,7 @@
 package com.nbe.NBE3_4_1_Team15.domain.order.service;
 
+import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
+import com.nbe.NBE3_4_1_Team15.domain.cart.repository.CartRepository;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.member.repository.MemberRepository;
 import com.nbe.NBE3_4_1_Team15.domain.order.dto.OrderDto;
@@ -17,22 +19,26 @@ import java.time.LocalTime;
 public class OrderUserService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
+    private final CartRepository cartRepository;
 
     // 주문 생성
-    public OrderDto create(Long memberId, Integer totalPrice) {
+    public OrderDto create(Long memberId) {
         Member consumer = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Member x"));
+
+        Cart cart = cartRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member x"));
+
+        int totalPrices = cart.getTotalPrice();
 
         Order order = Order.builder()
                 .consumer(consumer)
                 .orderType(OrderType.ORDERED)
-                .totalPrice(totalPrice)
+                .totalPrice(totalPrices)
                 .orderDate(LocalDateTime.now())
                 .build();
 
         Order savedOrder = orderRepository.save(order);
-
-        System.out.println("생성된 Order: " + savedOrder);
 
         return OrderDto.of(savedOrder);
     }
