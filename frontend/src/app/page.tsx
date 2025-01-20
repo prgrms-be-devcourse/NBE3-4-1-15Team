@@ -48,16 +48,15 @@ export default function OrdersPage() {
 
     // 주문 생성
     const createOrder = async () => {
-        if (!memberId || !totalPrice) {
+        if (!memberId) {
             alert("Member ID와 Total Price를 모두 입력해주세요!");
             return;
         }
 
         try {
-            const response = await apiClient.post("/user/orders", null, {
+            const response = await apiClient.post("/user/orders/create", null, {
                 params: {
-                    memberId,
-                    totalPrice,
+                    memberId
                 },
             });
             setStatus("주문이 성공적으로 생성되었습니다: " + response.data.id);

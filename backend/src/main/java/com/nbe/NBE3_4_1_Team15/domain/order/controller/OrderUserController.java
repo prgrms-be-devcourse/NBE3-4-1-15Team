@@ -33,7 +33,7 @@ public class OrderUserController {
     }
 
     // 주문 생성
-    @PostMapping("")
+    @PostMapping("create")
     public ResponseEntity<OrderDto> create(@RequestParam(name = "memberId") Long memberId) {
         OrderDto createdOrder = orderUserService.create(memberId);
         return ResponseEntity.ok(createdOrder);
