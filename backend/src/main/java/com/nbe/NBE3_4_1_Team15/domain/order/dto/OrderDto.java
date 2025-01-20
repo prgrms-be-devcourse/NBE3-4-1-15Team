@@ -40,7 +40,6 @@ public class OrderDto {
                 .orderType(order.getOrderType() != null ? order.getOrderType().name() : null)
                 .totalPrice(order.getTotalPrice())
                 .orderDate(order.getOrderDate())
-                .cartId(order.getCart() != null ? order.getCart().getId() : null)
                 .build();
     }
 }

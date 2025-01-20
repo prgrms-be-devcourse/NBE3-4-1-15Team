@@ -2,12 +2,14 @@ package com.nbe.NBE3_4_1_Team15.domain.order.service;
 
 import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
 import com.nbe.NBE3_4_1_Team15.domain.cart.repository.CartRepository;
+import com.nbe.NBE3_4_1_Team15.domain.cartProduct.entity.CartProduct;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.member.repository.MemberRepository;
 import com.nbe.NBE3_4_1_Team15.domain.order.dto.OrderDto;
 import com.nbe.NBE3_4_1_Team15.domain.order.entity.Order;
 import com.nbe.NBE3_4_1_Team15.domain.order.repository.OrderRepository;
 import com.nbe.NBE3_4_1_Team15.domain.order.type.OrderType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,26 +24,45 @@ public class OrderUserService {
     private final CartRepository cartRepository;
 
     // 주문 생성
+    @Transactional
     public OrderDto create(Long memberId) {
         Member consumer = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member x"));
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
-        Cart cart = cartRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member x"));
+        Cart cart = cartRepository.findByConsumer_Id(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Cart not found for memberId: " + memberId));
+
+        // 디버깅: 장바구니 내용 확인
+        System.out.println("Cart ID: " + cart.getId());
+        System.out.println("Number of Products in Cart: " + cart.getCartProducts().size());
+        for (CartProduct cp : cart.getCartProducts()) {
+            System.out.println("Product Name: " + cp.getProduct().getName());
+            System.out.println("Price: " + cp.getProduct().getPrice());
+            System.out.println("Quantity: " + cp.getQuantity());
+        }
 
         int totalPrices = cart.getTotalPrice();
+        System.out.println("Total Price: " + totalPrices);
 
         Order order = Order.builder()
                 .consumer(consumer)
+                .cart(cart)
                 .orderType(OrderType.ORDERED)
                 .totalPrice(totalPrices)
                 .orderDate(LocalDateTime.now())
                 .build();
 
+        // 주문 저장
         Order savedOrder = orderRepository.save(order);
+
+        // 카트 초기화
+        cart.getCartProducts().clear();
+        cartRepository.save(cart);
 
         return OrderDto.of(savedOrder);
     }
+
+
 
     public void delete(Long id) {
         orderRepository.findById(id).ifPresent(orderRepository::delete);
