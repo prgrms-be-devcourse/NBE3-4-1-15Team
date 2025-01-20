@@ -1,5 +1,7 @@
 package com.nbe.NBE3_4_1_Team15.domain.order.entity;
 
+import com.nbe.NBE3_4_1_Team15.domain.cart.entity.Cart;
+import com.nbe.NBE3_4_1_Team15.domain.cartProduct.entity.CartProduct;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.order.type.OrderType;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseTime;
@@ -7,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,4 +28,8 @@ public class Order extends BaseTime {
     private Integer totalPrice;
 
     private LocalDateTime orderDate; // 주문이 이루어진 시간
+
+    @ManyToOne(fetch = FetchType.LAZY) // Order와 Cart의 N:1 관계
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 }

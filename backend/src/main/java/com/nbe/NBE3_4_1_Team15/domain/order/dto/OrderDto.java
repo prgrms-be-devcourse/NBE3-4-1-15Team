@@ -28,6 +28,8 @@ public class OrderDto {
     @JsonProperty("order_date")
     private LocalDateTime orderDate; // 주문이 이루어진 시간
 
+    private Long cartId;
+
     // 엔티티를 DTO로 변환하는 정적 팩토리 메서드
     public static OrderDto of(Order order) {
         return OrderDto.builder()

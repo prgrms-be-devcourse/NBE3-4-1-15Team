@@ -8,6 +8,8 @@ export default function OrdersPage() {
     const [orderId, setOrderId] = useState("");
     const [memberId, setMemberId] = useState(""); // memberId 상태 추가
     const [status, setStatus] = useState("");
+    const [totalPrice, setTotalPrice] = useState(""); // Total Price 상태 추가
+
 
     // 모든 주문 조회
     const fetchAllOrders = async () => {
@@ -46,19 +48,24 @@ export default function OrdersPage() {
 
     // 주문 생성
     const createOrder = async () => {
+        if (!memberId) {
+            alert("Member ID와 Total Price를 모두 입력해주세요!");
+            return;
+        }
+
         try {
-            const response = await apiClient.post("/user/orders", null, {
+            const response = await apiClient.post("/user/orders/create", null, {
                 params: {
-                    memberId: 1,
-                    orderType: "PAID",
-                    totalPrice: 50000,
+                    memberId
                 },
             });
             setStatus("주문이 성공적으로 생성되었습니다: " + response.data.id);
+            setOrders((prevOrders) => [...prevOrders, response.data]); // 새로운 주문을 목록에 추가
         } catch (error) {
             setStatus("오류 발생: " + error.message);
         }
     };
+
 
     // 주문 삭제
     const deleteOrder = async () => {
@@ -83,13 +90,20 @@ export default function OrdersPage() {
                 <div style={styles.inputGroup}>
                     <input
                         type="text"
-                        placeholder="Order ID 입력"
-                        value={orderId}
-                        onChange={(e) => setOrderId(e.target.value)}
+                        placeholder="Member ID 입력"
+                        value={memberId}
+                        onChange={(e) => setMemberId(e.target.value)}
                         style={styles.input}
                     />
-                    <button style={styles.button} onClick={fetchOrderById}>
-                        특정 주문 조회
+                    <input
+                        type="number"
+                        placeholder="Total Price 입력"
+                        value={totalPrice}
+                        onChange={(e) => setTotalPrice(e.target.value)}
+                        style={styles.input}
+                    />
+                    <button style={styles.button} onClick={createOrder}>
+                        주문 생성
                     </button>
                 </div>
                 <div style={styles.inputGroup}>
@@ -149,9 +163,10 @@ const styles = {
         fontFamily: "Arial, sans-serif",
         backgroundColor: "#f4f4f4",
         minHeight: "100vh",
+        gap: "20px", // 섹션 간 간격 추가
     },
     buttonSection: {
-        width: "30%",
+        width: "35%", // 더 좁게 조정
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
@@ -159,6 +174,7 @@ const styles = {
         backgroundColor: "#fff",
         borderRadius: "10px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        overflow: "hidden", // 내용이 박스 밖으로 튀어나가지 않도록 처리
     },
     button: {
         width: "100%",
@@ -174,25 +190,26 @@ const styles = {
     },
     inputGroup: {
         display: "flex",
-        alignItems: "center",
+        flexDirection: "column", // 수직 정렬
         gap: "10px",
-        marginBottom: "10px",
+        marginBottom: "20px", // 간격 추가
+        width: "100%", // 입력 필드가 박스에 맞게 조정
     },
     input: {
-        flex: 1,
+        width: "100%",
         padding: "10px",
         border: "1px solid #ccc",
         borderRadius: "5px",
         color: "black",
     },
     listSection: {
-        width: "65%",
+        width: "60%", // 더 좁게 조정
         padding: "20px",
         backgroundColor: "#fff",
         borderRadius: "10px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        maxHeight: "300px",
-        overflowY: "auto",
+        maxHeight: "400px", // 목록 섹션의 최대 높이 제한
+        overflowY: "auto", // 세로 스크롤 활성화
     },
     listTitle: {
         fontSize: "1.5rem",
@@ -206,6 +223,7 @@ const styles = {
         borderRadius: "5px",
         color: "black",
         fontSize: "1rem",
+        wordWrap: "break-word", // 긴 텍스트 줄바꿈 처리
     },
     title: {
         fontSize: "1.5rem",
