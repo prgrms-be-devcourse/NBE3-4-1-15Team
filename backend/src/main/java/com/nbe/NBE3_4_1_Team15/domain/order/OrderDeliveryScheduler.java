@@ -1,7 +1,7 @@
 package com.nbe.NBE3_4_1_Team15.domain.order;
 
 import com.nbe.NBE3_4_1_Team15.domain.order.entity.Order;
-import com.nbe.NBE3_4_1_Team15.domain.order.repository.OrderRepository;
+import com.nbe.NBE3_4_1_Team15.domain.order.repository.SpringOrderRepository;
 import com.nbe.NBE3_4_1_Team15.domain.order.type.OrderType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderDeliveryScheduler {
 
-    private final OrderRepository orderRepository;
+    private final SpringOrderRepository orderRepository;
 
     /**
      * 테스트용: 10초마다 실행하도록 fixedDelay 속성을 사용

@@ -3,6 +3,7 @@ package com.nbe.NBE3_4_1_Team15.domain.order.service;
 import com.nbe.NBE3_4_1_Team15.domain.order.dto.OrderDto;
 import com.nbe.NBE3_4_1_Team15.domain.order.entity.Order;
 import com.nbe.NBE3_4_1_Team15.domain.order.repository.OrderRepository;
+import com.nbe.NBE3_4_1_Team15.domain.order.repository.SpringOrderRepository;
 import com.nbe.NBE3_4_1_Team15.domain.order.type.OrderType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -8,6 +8,7 @@ import com.nbe.NBE3_4_1_Team15.domain.member.repository.MemberRepository;
 import com.nbe.NBE3_4_1_Team15.domain.order.dto.OrderDto;
 import com.nbe.NBE3_4_1_Team15.domain.order.entity.Order;
 import com.nbe.NBE3_4_1_Team15.domain.order.repository.OrderRepository;
+import com.nbe.NBE3_4_1_Team15.domain.order.repository.SpringOrderRepository;
 import com.nbe.NBE3_4_1_Team15.domain.order.type.OrderType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,6 +25,7 @@ public class OrderUserService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final CartRepository cartRepository;
+
 
     /**
      * 주문 생성
@@ -71,7 +74,7 @@ public class OrderUserService {
         cartRepository.save(cart);
 
         // 7) 반환
-        return OrderDto.of(savedOrder);
+        return OrderDto.of(order);
     }
 
     /**
@@ -80,6 +83,7 @@ public class OrderUserService {
     public void delete(Long id) {
         orderRepository.findById(id).ifPresent(orderRepository::delete);
     }
+
 
     /**
      * 주문 상태 변경(배송 처리)
