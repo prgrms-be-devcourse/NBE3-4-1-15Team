@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -30,13 +31,6 @@ public class ProductController {
     private final ProductService productService;
     private final MemberService memberService;
 
-    /**
-     * Product 생성/수정 시 사용하는 DTO.
-     *
-     * 주의:
-     * - enum 타입에는 @NotBlank 대신 @NotNull 사용
-     * - price/stock 같은 숫자에는 @NotNull, @Positive 등 적절히 적용 가능
-     */
     record ProductCreateReqBody(
             @NotBlank String name,         // 상품명
             @NotNull Integer price,        // 가격
@@ -58,20 +52,12 @@ public class ProductController {
     @Transactional
     public RsData<Void> create(
             @Valid @RequestBody ProductCreateReqBody reqBody,
-            Authentication authentication
+            Authentication authentication,
+            Model model,
+            Principal principal
     ) {
-        // 1. Principal 객체 가져오기
-        Object principal = authentication.getPrincipal();
-
-        // 2. SecurityUser인지 확인
-        if (!(principal instanceof SecurityUser)) {
-            throw new ServiceException("403-2", "잘못된 사용자 인증 정보입니다.");
-        }
-
-        // 3. 올바른 타입으로 캐스팅
-        SecurityUser loggedInUser = (SecurityUser) principal;
-
-        // 4. 사용자 정보에서 Member 가져오기
+        // 로그인 사용자 추출
+        SecurityUser loggedInUser = (SecurityUser) authentication.getPrincipal();
         Member seller = memberService.getMemberFromSecurityUser(loggedInUser);
 
         // Product 생성
@@ -131,7 +117,7 @@ public class ProductController {
                 .orElseThrow(() -> new ServiceException("404-1", "상품을 찾을 수 없습니다."));
 
         // 권한 체크 (본인 상품인지)
-        SecurityUser loggedInUser = (SecurityUser) authentication.getPrincipal();
+        SecurityUser loggedInUser = (SecurityUser) authentication;
         if (!product.getSeller().getId().equals(loggedInUser.getId())) {
             throw new ServiceException("403-1", "수정 권한이 없습니다!");
         }

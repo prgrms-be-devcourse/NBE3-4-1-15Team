@@ -76,9 +76,9 @@ public class ProductService {
 //        Product findProduct = findProductOrThrow(id);
 //        productRepository.delete(findProduct);
 //    }
-    public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
-    }
+public void deleteProduct(Long id) {
+    productRepository.deleteById(id);
+}
 
     public List<Product> getProducts() {
         return productRepository.findAll();
