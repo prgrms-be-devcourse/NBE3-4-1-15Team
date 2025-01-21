@@ -35,22 +35,25 @@ public class CartController {
         private int quantity;   // 수량
     }
 
-    // 장바구니에 상품 추가
+    @Data
+    static class RemoveOneRequest {
+        @NotNull
+        private Long productId; // 상품 ID
+    }
+
+    // 장바구니에 상품 추가 (stock 감소 처리)
     @PostMapping("/add")
     public RsData<CartProductDto> addProduct(@RequestBody AddCartRequest request) {
-        // 로그인한 사용자
         Long memberId = rq.getMemberId();
         Member member = memberService.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
 
-        // 상품 조회
         Product product = productService.findById(request.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
 
-        // cart 찾거나 없으면 생성
         Cart cart = cartService.findOrCreateCart(member);
 
-        // 장바구니에 상품 추가
+        // 장바구니에 상품 추가 + stock 감소
         CartProduct cartProduct = cartService.addProduct(cart, product, request.getQuantity());
 
         // 응답 DTO
@@ -62,6 +65,35 @@ public class CartController {
                 cartProduct.getTotalPrice()
         );
         return new RsData<>("200-1", "장바구니에 상품이 추가되었습니다.", dto);
+    }
+
+    // 장바구니에서 상품 한 개 제거 (stock 복구)
+    @PatchMapping("/removeOne")
+    public RsData<CartProductDto> removeOne(@RequestBody RemoveOneRequest request) {
+        Long memberId = rq.getMemberId();
+        Member member = memberService.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
+        Cart cart = cartService.findOrCreateCart(member);
+
+        Product product = productService.findById(request.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+
+        CartProduct cartProduct = cartService.removeOneProduct(cart, product);
+
+        if (cartProduct == null) {
+            // 이미 삭제되어 null이면, 해당 cartProductDto는 더 이상 없음
+            return new RsData<>("200-2", "장바구니에서 상품이 제거되었습니다.", null);
+        }
+
+        // 응답 DTO
+        CartProductDto dto = new CartProductDto(
+                product.getId(),
+                product.getName(),
+                product.getPrice(),
+                cartProduct.getQuantity(),
+                cartProduct.getTotalPrice()
+        );
+        return new RsData<>("200-3", "장바구니 상품 한 개 감소 처리 완료", dto);
     }
 
     // 장바구니 목록 조회

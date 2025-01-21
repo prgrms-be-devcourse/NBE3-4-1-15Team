@@ -2,6 +2,7 @@ package com.nbe.NBE3_4_1_Team15.domain.member.service;
 
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.member.repository.MemberRepository;
+import com.nbe.NBE3_4_1_Team15.domain.member.type.MemberType;
 import com.nbe.NBE3_4_1_Team15.global.exceptions.ServiceException;
 import com.nbe.NBE3_4_1_Team15.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class MemberService {
     }
 
 
-    public Member join(String email, String password, String nickname) {
+    public Member join(String email, String password, String address, String nickname, MemberType memberType) {
         memberRepository
                 .findByEmail(email)
                 .ifPresent(_ -> {
@@ -35,6 +36,8 @@ public class MemberService {
                 .email(email)
                 .password(encryptedPassword)
                 .nickname(nickname)
+                .address(address)
+                .memberType(memberType)
                 .refreshToken(UUID.randomUUID().toString())
                 .build();
 

@@ -64,7 +64,7 @@ public class Member extends BaseTime {
 
     private List<String> getAuthoritiesAsStringList() {
         List<String> authorities = new ArrayList<>();
-        if (memberType == MemberType.ROLE_MEMBER) {
+        if (memberType == MemberType.MEMBER) {
             authorities.add("ROLE_MEMBER");
         }
         return authorities;

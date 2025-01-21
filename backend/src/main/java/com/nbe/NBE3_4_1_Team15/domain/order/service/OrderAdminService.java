@@ -15,27 +15,31 @@ import java.util.stream.Collectors;
 public class OrderAdminService {
     private final OrderRepository orderRepository;
 
-    // 모든 주문 내역 조회
+    /**
+     * 모든 주문 조회
+     */
     public List<OrderDto> findAll() {
         return orderRepository.findAll().stream()
                 .map(OrderDto::of)
                 .collect(Collectors.toList());
     }
 
-    // 주문 삭제
+    /**
+     * 주문 삭제
+     */
     public void delete(Long id) {
         orderRepository.findById(id).ifPresent(orderRepository::delete);
     }
 
-    // 관리자 상태 변경
+    /**
+     * 주문 상태 변경 (관리자용)
+     */
     public OrderDto orderTypeUpdate(Long orderId, OrderType orderType) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderId));
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
         order.setOrderType(orderType);
-
-        orderRepository.save(order);
-
-        return OrderDto.of(order);
+        Order saved = orderRepository.save(order);
+        return OrderDto.of(saved);
     }
 }
