@@ -65,7 +65,7 @@ public class Rq {
                 .secure(true)
                 .httpOnly(true)
                 .build();
-        response.addHeader(cookie.getName(), value);
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     public String getCookieValue(String name) {
@@ -88,7 +88,7 @@ public class Rq {
                 .maxAge(0)
                 .build();
 
-        response.addHeader("Set-Cookie", cookie.getName());
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     public void setHeader(String name, String value) {
