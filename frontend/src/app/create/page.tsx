@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import apiClient from "@/utils/api";
 
 interface Product {
@@ -11,6 +12,8 @@ interface Product {
 }
 
 export default function ProductManagementPage() {
+    const router = useRouter();
+
     const [products, setProducts] = useState<Product[]>([]); // 상품 목록 상태
     const [name, setName] = useState(""); // 제품명
     const [price, setPrice] = useState(0); // 가격
@@ -19,7 +22,7 @@ export default function ProductManagementPage() {
     const [stock, setStock] = useState(0); // 재고
     const [status, setStatus] = useState(""); // 상태 메시지
 
-    // 상품 등록 요청
+    // 상품 등록 요청: 성공 시 홈("/")으로 이동하도록 router.push("/")를 호출합니다.
     const handleSubmit = async () => {
         try {
             const response = await apiClient.post("/api/v1/products", {
@@ -43,7 +46,10 @@ export default function ProductManagementPage() {
             setProducts((prevProducts) => [...prevProducts, newProduct]);
 
             resetForm(); // 폼 초기화
-        } catch (error) {
+
+            // 등록 후 홈("/")으로 이동
+            router.push("/");
+        } catch (error: any) {
             console.error("오류 발생:", error);
             setStatus("오류 발생: " + (error.response?.data?.msg || error.message));
         }

@@ -34,9 +34,8 @@ public class OrderUserService {
                 .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
 
         // 2) Cart 가져오기
-        Cart cart = consumer.getCart(); // 또는 cartRepository.findByMemberId(...);
+        Cart cart = consumer.getCart(); // 또는 cartRepository.findByMemberId(memberId);
         if (cart == null) {
-            // 장바구니가 없으면 예외 or 자동 생성
             throw new IllegalStateException("장바구니가 없습니다. 주문을 생성할 수 없습니다.");
         }
 
@@ -83,7 +82,10 @@ public class OrderUserService {
     }
 
     /**
-     * 주문 상태 변경(배송 처리) 등
+     * 주문 상태 변경(배송 처리)
+     * PAID 상태의 주문에 대해 배송 처리 시,
+     * - 당일 14시 이전 주문은 당일 14시에 배송 처리,
+     * - 당일 14시 이후 주문은 다음날 14시에 배송 처리하도록 처리합니다.
      */
     public OrderDto processDelivery(Long orderId) {
         Order order = orderRepository.findById(orderId)
@@ -98,14 +100,13 @@ public class OrderUserService {
 
         if (now.toLocalTime().isBefore(cutoffTime)) {
             order.setOrderType(OrderType.DELIVERY);
-            order.setOrderDate(now);  // or some logic
+            order.setOrderDate(now);  // 당일 14시에 배송 처리
         } else {
             order.setOrderType(OrderType.DELIVERY);
-            order.setOrderDate(now.plusDays(1));
+            order.setOrderDate(now.plusDays(1).withHour(14).withMinute(0).withSecond(0).withNano(0));  // 다음날 14시에 배송 처리
         }
 
         Order saved = orderRepository.save(order);
         return OrderDto.of(saved);
     }
 }
-
