@@ -74,7 +74,7 @@ public class Rq { // RequestScope에서 사용하는 클래스
                 .secure(true)
                 .httpOnly(true)
                 .build();
-        response.addHeader(cookie.getName(), value);
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     public String getCookieValue(String name) {
@@ -97,7 +97,7 @@ public class Rq { // RequestScope에서 사용하는 클래스
                 .maxAge(0) // maxAge = 0 으로 설정하여 쿠키를 삭제한다.
                 .build();
 
-        response.addHeader("Set-Cookie", cookie.getName());
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     public void setHeader(String name, String value) {

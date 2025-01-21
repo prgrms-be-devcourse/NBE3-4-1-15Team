@@ -1,5 +1,8 @@
 package com.nbe.NBE3_4_1_Team15.domain.member.controller;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nbe.NBE3_4_1_Team15.domain.member.dto.MemberDto;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.member.service.AuthService;
@@ -11,10 +14,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -50,6 +50,7 @@ public class MemberController {
     ) {
     }
 
+    @JsonNaming(PropertyNamingStrategies.KebabCaseStrategy.class)
     record MemberLoginResBody(
             MemberDto item,
             String accessToken,
@@ -82,6 +83,26 @@ public class MemberController {
                         member.getRefreshToken()
                 )
         );
+    }
+
+    @DeleteMapping("/logout")
+    @Transactional(readOnly = true)
+    public RsData<Void> logout() {
+        rq.deleteCookie("access-token");
+        rq.deleteCookie("refresh-token");
+
+        return new RsData<>(
+                "200-1",
+                "로그아웃 되었습니다."
+        );
+    }
+
+    @GetMapping("/me")
+    @Transactional(readOnly = true)
+    public MemberDto me() {
+        Member actor = rq.findByActor().get();
+
+        return new MemberDto(actor);
     }
 
 }
