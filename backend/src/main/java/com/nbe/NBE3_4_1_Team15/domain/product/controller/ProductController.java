@@ -11,8 +11,8 @@ import com.nbe.NBE3_4_1_Team15.global.rsData.RsData;
 import com.nbe.NBE3_4_1_Team15.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -26,22 +26,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/products")
 public class ProductController {
+
     private final ProductService productService;
     private final MemberService memberService;
-//    private final ProductRepository productRepository;
-
-//    @GetMapping("/new") // 상품 생성 폼을 보여주는 GET 요청
-//    public String createForm(Model model) {
-//        model.addAttribute("productCreateDto", new ProductCreateDto());
-//        return "products/createForm"; // View 이름
-//    }
 
     record ProductCreateReqBody(
-            @NotBlank String name,
-            @NotBlank int price,
-            @NotBlank String description,
-            @NotBlank ProductType productType,
-            @NotBlank int stock
+            @NotBlank String name,         // 상품명
+            @NotNull Integer price,        // 가격
+            @NotBlank String description,  // 설명
+            @NotNull ProductType productType,  // enum
+            @NotNull Integer stock         // 재고
     ) {
         void updateProduct(Product product) {
             product.setName(name);
@@ -52,48 +46,36 @@ public class ProductController {
         }
     }
 
-    // 권한은 회원 에게만
+    // 상품 생성
     @PostMapping
     @Transactional
-    public RsData<Void> create(@Valid @RequestBody ProductCreateReqBody reqBody, Authentication authentication, Model model, Principal principal) {
-        SecurityUser loggedInUser = (SecurityUser) authentication;
+    public RsData<Void> create(
+            @Valid @RequestBody ProductCreateReqBody reqBody,
+            Authentication authentication,
+            Model model,
+            Principal principal
+    ) {
+        // 로그인 사용자 추출
+        SecurityUser loggedInUser = (SecurityUser) authentication.getPrincipal();
         Member seller = memberService.getMemberFromSecurityUser(loggedInUser);
 
-        Product product = productService.create(
+        // Product 생성
+        productService.create(
                 seller,
-                reqBody.name,
-                reqBody.price,
-                reqBody.description,
-                reqBody.productType,
-                reqBody.stock
+                reqBody.name(),
+                reqBody.price(),
+                reqBody.description(),
+                reqBody.productType(),
+                reqBody.stock()
         );
 
-        return new RsData<>(
-                "201-2",
-                "제품이 등록되었습니다."
-        );
+        return new RsData<>("201-2", "제품이 등록되었습니다.");
     }
 
-//    public String create(@ModelAttribute ProductCreateDto createDto, RedirectAttributes redirectAttributes) {
-//        try {
-//            ProductResponseDto responseDto = productService.create(createDto);
-//            redirectAttributes.addFlashAttribute("message", "상품이 성공적으로 생성되었습니다.");
-//            return "redirect:/products/" + responseDto.getId(); // 생성된 상품 상세 페이지로 리다이렉트
-//        } catch (RuntimeException e) {
-//            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-//            return "redirect:/products/new"; // 생성 폼으로 다시 리다이렉트
-//        }
-//    }
-
+    // 전체 상품 조회
     @GetMapping
     public RsData<List<ProductDto>> getProducts() {
         List<Product> products = productService.getProducts();
-
-        // 디버깅용 로그
-        products.forEach(product -> {
-            System.out.println("Product ID: " + product.getId());
-        });
-
         return new RsData<>(
                 "200-1",
                 "전체 상품 조회가 완료되었습니다.",
@@ -102,15 +84,9 @@ public class ProductController {
                         .toList()
         );
     }
-//    @GetMapping
-//    public String getProducts(Model model) {
-//        List<ProductResponseDto> productList = productService.getProductList();
-//        model.addAttribute("productList", productList);
-//        return "products/list"; // View 이름
-//    }
 
 
-
+    // 단일 상품 조회
     @GetMapping("/{id}")
     public RsData<ProductDto> getProduct(@PathVariable Long id) {
         Optional<Product> opProduct = productService.findById(id);
@@ -120,98 +96,54 @@ public class ProductController {
                         "Product(%d) not found".formatted(id)
                 )
         );
-        return new RsData<> (
+        return new RsData<>(
                 "200-2",
                 "상품 조회가 완료되었습니다.",
                 new ProductDto(product)
         );
     }
-//    @GetMapping("/{Id}")
-//    public String getProduct(@PathVariable Long Id, Model model) {
-//        try {
-//            ProductResponseDto product = productService.getProduct(Id);
-//            model.addAttribute("product", product);
-//            return "products/detail"; // View 이름
-//        } catch (RuntimeException e) {
-//            model.addAttribute("errorMessage", e.getMessage());
-//            return "error"; // 에러 페이지
-//        }
-//    }
 
+    // 상품 수정
     @PutMapping("/{id}")
     @Transactional
-    public RsData<Void> update(@RequestBody @Valid ProductCreateReqBody reqBody,@PathVariable Long id, Authentication authentication) {
-        Product product = productService.findById(id).get();
+    public RsData<Void> update(
+            @RequestBody @Valid ProductCreateReqBody reqBody,
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        // 상품 존재 여부
+        Product product = productService.findById(id)
+                .orElseThrow(() -> new ServiceException("404-1", "상품을 찾을 수 없습니다."));
+
+        // 권한 체크 (본인 상품인지)
         SecurityUser loggedInUser = (SecurityUser) authentication;
-        if(!product.getSeller().getId().equals(loggedInUser.getId())) {
-            throw new ServiceException(
-                    "403-1",
-                    "수정 권한이 없습니다!"
-            );
+        if (!product.getSeller().getId().equals(loggedInUser.getId())) {
+            throw new ServiceException("403-1", "수정 권한이 없습니다!");
         }
 
+        // 수정 로직
         reqBody.updateProduct(product);
 
-        return new RsData<> (
-                "200-3",
-                "상품 수정이 완되었습니다."
-                );
+        return new RsData<>("200-3", "상품 수정이 완료되었습니다.");
     }
 
-//    @GetMapping("/{Id}/edit") // 상품 수정 폼을 보여주는 GET 요청
-//    public String updateForm(@PathVariable Long Id, Model model) {
-//        try {
-//            ProductResponseDto product = productService.getProduct(Id);
-//            ProductUpdateDto updateDto = new ProductUpdateDto(product.getPrice(), product.getDescription(), product.getStock());
-//            model.addAttribute("updateDto", updateDto);
-//            model.addAttribute("Id", Id);
-//            return "products/updateForm"; // View 이름
-//        } catch (RuntimeException e) {
-//            model.addAttribute("errorMessage", e.getMessage());
-//            return "error"; // 에러 페이지
-//        }
-//    }
-
-//    @PostMapping("/{Id}")
-//    public String updateProduct(@PathVariable Long Id, @ModelAttribute ProductUpdateDto updateDto, RedirectAttributes redirectAttributes) {
-//        try {
-//            productService.updateProduct(Id, updateDto);
-//            redirectAttributes.addFlashAttribute("message", "상품이 수정되었습니다.");
-//            return "redirect:/products/" + Id; // 수정된 상품 상세 페이지로 리다이렉트
-//        } catch (RuntimeException e) {
-//            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-//            return "redirect:/products/" + Id + "/edit"; // 수정 폼으로 다시 리다이렉트
-//        }
-//    }
-
+    // 상품 삭제
     @DeleteMapping("/{id}")
+    @Transactional
     public RsData<Void> delete(@PathVariable Long id, Authentication authentication) {
-        Product product = productService.findById(id).get();
-        SecurityUser loggedInUser = (SecurityUser) authentication;
-        if(!product.getSeller().getId().equals(loggedInUser.getId())) {
-            throw new ServiceException(
-                    "403-1",
-                    "삭제 권한이 없습니다!"
-            );
+        // 상품 조회
+        Product product = productService.findById(id)
+                .orElseThrow(() -> new ServiceException("404-1", "상품을 찾을 수 없습니다."));
+
+        // 권한 체크 (본인 상품인지)
+        SecurityUser loggedInUser = (SecurityUser) authentication.getPrincipal();
+        if (!product.getSeller().getId().equals(loggedInUser.getId())) {
+            throw new ServiceException("403-1", "삭제 권한이 없습니다!");
         }
 
+        // 삭제
         productService.deleteProduct(id);
-        return new RsData<>(
-                "200-4",
-                "상품 삭제가 완료되었습니다."
-        );
+
+        return new RsData<>("200-4", "상품 삭제가 완료되었습니다.");
     }
-//    @DeleteMapping("/{Id}")
-//    public String deleteProduct(@PathVariable Long Id, RedirectAttributes redirectAttributes) {
-//        try {
-//            productService.deleteProduct(Id);
-//            redirectAttributes.addFlashAttribute("message", "상품이 삭제되었습니다.");
-//            return "redirect:/products"; // 상품 목록 페이지로 리다이렉트
-//        } catch (RuntimeException e) {
-//            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-//            return "redirect:/products/" + Id; // 상품 상세 페이지로 다시 리다이렉트
-//        }
-//    }
-
-
 }
