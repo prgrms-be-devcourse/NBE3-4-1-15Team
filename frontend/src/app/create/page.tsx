@@ -13,7 +13,8 @@ interface Product {
 
 export default function ProductManagementPage() {
     const router = useRouter();
-    const [products, setProducts] = useState<Product[]>([]);
+
+    const [products, setProducts] = useState<Product[]>([]); // 상품 목록 상태
     const [name, setName] = useState(""); // 제품명
     const [price, setPrice] = useState(0); // 가격
     const [description, setDescription] = useState(""); // 설명
@@ -21,7 +22,7 @@ export default function ProductManagementPage() {
     const [stock, setStock] = useState(0); // 재고
     const [status, setStatus] = useState(""); // 상태 메시지
 
-    // 상품 등록 요청
+    // 상품 등록 요청: 성공 시 홈("/")으로 이동하도록 router.push("/")를 호출합니다.
     const handleSubmit = async () => {
         try {
             const response = await apiClient.post("/api/v1/products", {
@@ -35,7 +36,7 @@ export default function ProductManagementPage() {
             // 상태 메시지 업데이트
             setStatus("제품 등록 성공: " + response.data.msg);
 
-            // 등록된 상품을 목록에 추가 (아이디는 response.data.id 에서 받아온다고 가정)
+            // 등록된 상품을 목록에 추가
             const newProduct = {
                 id: response.data.id,
                 name,
@@ -44,11 +45,9 @@ export default function ProductManagementPage() {
             };
             setProducts((prevProducts) => [...prevProducts, newProduct]);
 
-            // 폼 초기화
-            resetForm();
+            resetForm(); // 폼 초기화
 
-            // alert 메시지를 띄운 후 확인을 누르면 홈("/")으로 이동
-            alert("제품이 등록되었습니다.");
+            // 등록 후 홈("/")으로 이동
             router.push("/");
         } catch (error: any) {
             console.error("오류 발생:", error);
@@ -160,7 +159,7 @@ export default function ProductManagementPage() {
 const styles = {
     container: {
         display: "flex",
-        flexDirection: "row" as const,
+        flexDirection: "row",
         gap: "20px",
         padding: "20px",
         fontFamily: "Arial, sans-serif",
@@ -212,7 +211,7 @@ const styles = {
         border: "1px solid #ddd",
         borderRadius: "5px",
         fontSize: "14px",
-        resize: "none" as const,
+        resize: "none",
         height: "80px",
     },
     select: {
@@ -230,7 +229,7 @@ const styles = {
         border: "none",
         borderRadius: "5px",
         fontSize: "16px",
-        fontWeight: "bold" as const,
+        fontWeight: "bold",
         cursor: "pointer",
     },
     status: {
@@ -240,7 +239,7 @@ const styles = {
     },
     productList: {
         display: "flex",
-        flexDirection: "column" as const,
+        flexDirection: "column",
         gap: "10px",
     },
     productItem: {
