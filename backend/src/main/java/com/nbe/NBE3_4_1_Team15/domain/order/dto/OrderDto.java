@@ -34,8 +34,8 @@ public class OrderDto {
     public static OrderDto of(Order order) {
         return OrderDto.builder()
                 .id(order.getId())
-                .createAt(order.getCreateAt())
-                .updateAt(order.getUpdateAt())
+                .createAt(order.getCreateDate())
+                .updateAt(order.getOrderDate())
                 .consumerId(order.getConsumer() != null ? order.getConsumer().getId() : null)
                 .orderType(order.getOrderType() != null ? order.getOrderType().name() : null)
                 .totalPrice(order.getTotalPrice())

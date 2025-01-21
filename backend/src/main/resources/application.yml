@@ -13,9 +13,9 @@ spring:
 #    username: sa
 #    password:
 #    driver-class-name: org.h2.Driver
-    url: jdbc:mysql://localhost:3306/temp # ?? ??? ? ??
+    url: jdbc:mysql://localhost:3306/tmp # ?? ??? ? ??
     username: root # ?? username ??
-    password: 1q2w3e4r # ?? password ??
+    password: q1w2e3r4 # ?? password ??
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
@@ -34,3 +34,8 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.orm.jdbc.extract: TRACE
     org.springframework.transaction.interceptor: TRACE
+custom:
+  jwt:
+    secretKey: abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789
+  accessToken:
+    expirationSeconds: "#{60*20}"

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 
 @Component
@@ -22,7 +23,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
     record AuthTokens(String refreshToken, String accessToken) {}
 
-    private AuthTokens getAuthTokenRequest() {
+    private AuthTokens getAuthTokenFromRequest() {
 
         // 1. (Header) 토큰 두개가 Authorization : Bearer refreshToken accessToken 형태로 올 때
         String authorization = rq.getHeader("Authorization");
@@ -55,8 +56,41 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         rq.setHeader("Refresh-Token", newAccessToken);
     }
 
+    private Member refreshAccessTokenByRefreshToken(String refreshToken) {
+        Optional<Member> opMemberByRefreshToken = memberService.findByRefreshToken(refreshToken);
+
+        if(opMemberByRefreshToken.isEmpty()) {
+            return null;
+        }
+
+        Member member = opMemberByRefreshToken.get();
+
+        refreshAccessToken(member);
+
+        return member;
+    }
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        AuthTokens authTokens = getAuthTokenFromRequest();
 
+        if(authTokens == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String refreshToken = authTokens.refreshToken;
+        String accessToken = authTokens.accessToken;
+
+        Member member = memberService.getMemberFromAccessToken(accessToken);
+
+        if(member == null) {
+            member = refreshAccessTokenByRefreshToken(refreshToken);
+        }
+
+        if(member != null) {
+            rq.setLogin(member);
+        }
+
+        filterChain.doFilter(request, response);
     }
 }
