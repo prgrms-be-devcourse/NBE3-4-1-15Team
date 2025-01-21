@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/cart")
@@ -29,7 +28,6 @@ public class CartController {
     private final MemberService memberService;
     private final Rq rq;
 
-    // "장바구니에 상품 담기" 요청 바디용 DTO
     @Data
     static class AddCartRequest {
         @NotNull
@@ -40,22 +38,22 @@ public class CartController {
     // 장바구니에 상품 추가
     @PostMapping("/add")
     public RsData<CartProductDto> addProduct(@RequestBody AddCartRequest request) {
-        // 1) 현재 로그인한 사용자
+        // 로그인한 사용자
         Long memberId = rq.getMemberId();
         Member member = memberService.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
 
-        // 2) 상품 조회
-        Product product = productService.findById(request.productId)
+        // 상품 조회
+        Product product = productService.findById(request.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
 
-        // 3) cart 찾거나 없으면 생성
+        // cart 찾거나 없으면 생성
         Cart cart = cartService.findOrCreateCart(member);
 
-        // 4) 실제 장바구니에 상품 추가
-        CartProduct cartProduct = cartService.addProduct(cart, product, request.quantity);
+        // 장바구니에 상품 추가
+        CartProduct cartProduct = cartService.addProduct(cart, product, request.getQuantity());
 
-        // 5) DTO 변환
+        // 응답 DTO
         CartProductDto dto = new CartProductDto(
                 product.getId(),
                 product.getName(),
@@ -63,15 +61,10 @@ public class CartController {
                 cartProduct.getQuantity(),
                 cartProduct.getTotalPrice()
         );
-
-        return new RsData<>(
-                "200-1",
-                "장바구니에 상품이 추가되었습니다.",
-                dto
-        );
+        return new RsData<>("200-1", "장바구니에 상품이 추가되었습니다.", dto);
     }
 
-    // 장바구니 목록 조회 API (선택)
+    // 장바구니 목록 조회
     @GetMapping("")
     public RsData<List<CartProductDto>> getCartItems() {
         Long memberId = rq.getMemberId();
@@ -90,7 +83,6 @@ public class CartController {
                     cp.getTotalPrice()
             ));
         }
-
         return new RsData<>("200-2", "장바구니 조회 성공", dtos);
     }
 }

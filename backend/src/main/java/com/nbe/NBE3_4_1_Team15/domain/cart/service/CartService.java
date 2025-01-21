@@ -30,7 +30,6 @@ public class CartService {
 //        return cartRepository.save(cart);
 //    }
     public CartProduct addProduct(Cart cart, Product product, int quantity) {
-        // 기존 "addProduct" 로직 사용
         CartProduct cartProduct = new CartProduct(cart, product, quantity);
         cart.getCartProducts().add(cartProduct);
         return cartProductRepository.save(cartProduct);
@@ -73,14 +72,13 @@ public class CartService {
 
     // CartService.java 중간에 메서드 추가
     public Cart findOrCreateCart(Member member) {
-        Optional<Cart> opCart = cartRepository.findByMemberId(member.getId());
-        if (opCart.isPresent()) {
-            return opCart.get();
+        if (member.getCart() != null) {
+            // 이미 Cart가 연결돼 있다면 그대로 반환
+            return member.getCart();
         }
-        // Cart가 없으면 새로 생성
-        Cart newCart = new Cart();
-        newCart.setMember(member);
-        newCart.setCartProducts(new ArrayList<>());
+        // 장바구니가 없으면 새로 생성
+        Cart newCart = Cart.builder().member(member).build();
+        member.setCart(newCart); // Member <-> Cart 서로 연결
         return cartRepository.save(newCart);
     }
 

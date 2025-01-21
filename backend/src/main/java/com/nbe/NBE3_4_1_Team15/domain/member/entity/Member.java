@@ -21,6 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Member extends BaseTime {
+
     @Column(nullable = false)
     private String email;
 
@@ -30,31 +31,30 @@ public class Member extends BaseTime {
     private String refreshToken;
 
     private String nickname;
-
     private String address;
-
-    private String postCode; // 우편번호
+    private String postCode;
 
     @Enumerated(EnumType.STRING)
     private MemberType memberType;
 
+    // 회원이 판매하는 상품들(예시)
     @OneToMany(mappedBy = "seller", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
-    private List<Product> products; // 판매상품, 회원 도메인에 생명주기가 의존적이므로 영속성 전이 PERSIST, REMOVE 적용
+    private List<Product> products;
 
-    @OneToOne
-    private Cart cart; // 장바구니
+    // 회원이 가진 장바구니 (1:1)
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Cart cart;
 
+    // 주문 목록
     @OneToMany(mappedBy = "consumer", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
     private List<Order> orders;
 
-    public Member(long id, String email) { //SiteUser를 위한 생성자
+    public Member(long id, String email) {
         this.setId(id);
         this.email = email;
     }
 
-    /**
-     * Spring Security의 User의 AuthorityList 스펙으로 변환시켜주는 메서드
-     * */
+    // 권한 관련 (예시)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getAuthoritiesAsStringList()
                 .stream()
@@ -62,7 +62,6 @@ public class Member extends BaseTime {
                 .toList();
     }
 
-    // 권한들을 문자열 리스트로 변경해주는 메서드
     private List<String> getAuthoritiesAsStringList() {
         List<String> authorities = new ArrayList<>();
         if (memberType == MemberType.ROLE_MEMBER) {
@@ -72,7 +71,6 @@ public class Member extends BaseTime {
     }
 
     public boolean matchPassword(String password) {
-
         return this.password.equals(password);
     }
 }
