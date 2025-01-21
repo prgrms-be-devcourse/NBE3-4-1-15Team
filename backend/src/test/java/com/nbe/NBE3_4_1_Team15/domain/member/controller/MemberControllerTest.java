@@ -133,8 +133,8 @@ public class MemberControllerTest {
                         post("/api/v1/members/login")
                                 .content("""
                                         {
-                                            "username": "user1",
-                                            "password": "1234"
+                                            "email": "test1@naver.com",
+                                            "password": "pw"
                                         }
                                         """.stripIndent())
                                 .contentType(
@@ -143,7 +143,7 @@ public class MemberControllerTest {
                 )
                 .andDo(print());
 
-        Member member = memberService.findByEmail("user1").get();
+        Member member = memberService.findByEmail("test1@naver.com").get();
 
         resultActions
                 .andExpect(handler().handlerType(MemberController.class))
@@ -162,13 +162,13 @@ public class MemberControllerTest {
 
         resultActions.andExpect(
                 result -> {
-                    Cookie accessTokenCookie = result.getResponse().getCookie("accessToken");
+                    Cookie accessTokenCookie = result.getResponse().getCookie("access-token");
                     assertThat(accessTokenCookie.getValue()).isNotBlank();
                     assertThat(accessTokenCookie.getPath()).isEqualTo("/");
                     assertThat(accessTokenCookie.isHttpOnly()).isTrue();
                     assertThat(accessTokenCookie.getSecure()).isTrue();
 
-                    Cookie apiKeyCookie = result.getResponse().getCookie("apiKey");
+                    Cookie apiKeyCookie = result.getResponse().getCookie("refresh-token");
                     assertThat(apiKeyCookie.getValue()).isEqualTo(member.getRefreshToken());
                     assertThat(apiKeyCookie.getPath()).isEqualTo("/");
                     assertThat(apiKeyCookie.isHttpOnly()).isTrue();
@@ -184,7 +184,7 @@ public class MemberControllerTest {
                         post("/api/v1/members/login")
                                 .content("""
                                         {
-                                            "username": "",
+                                            "email": "",
                                             "password": "1234"
                                         }
                                         """.stripIndent())
@@ -199,7 +199,7 @@ public class MemberControllerTest {
                 .andExpect(handler().methodName("login"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.resultCode").value("400-1"))
-                .andExpect(jsonPath("$.msg").value("username-NotBlank-must not be blank"));
+                .andExpect(jsonPath("$.msg").value("email-NotBlank-must not be blank"));
     }
 
     @Test
@@ -210,7 +210,7 @@ public class MemberControllerTest {
                         post("/api/v1/members/login")
                                 .content("""
                                         {
-                                            "username": "user1",
+                                            "email": "test1@naver.com",
                                             "password": ""
                                         }
                                         """.stripIndent())
@@ -236,8 +236,8 @@ public class MemberControllerTest {
                         post("/api/v1/members/login")
                                 .content("""
                                         {
-                                            "username": "user0",
-                                            "password": "1234"
+                                            "email": "@naver.com",
+                                            "password": "pw"
                                         }
                                         """.stripIndent())
                                 .contentType(
@@ -262,7 +262,7 @@ public class MemberControllerTest {
                         post("/api/v1/members/login")
                                 .content("""
                                         {
-                                            "username": "user1",
+                                            "email": "test1@naver.com",
                                             "password": "1"
                                         }
                                         """.stripIndent())
@@ -283,7 +283,7 @@ public class MemberControllerTest {
     @Test
     @DisplayName("내 정보, with user1")
     void t9() throws Exception {
-        Member actor = memberService.findByEmail("user2").get();
+        Member actor = memberService.findByEmail("test1@naver.com").get();
         String actorAuthToken = memberService.genAuthToken(actor);
 
         ResultActions resultActions = mvc
@@ -306,7 +306,7 @@ public class MemberControllerTest {
     @Test
     @DisplayName("내 정보, with user2")
     void t10() throws Exception {
-        Member actor = memberService.findByEmail("user2").get();
+        Member actor = memberService.findByEmail("test2@naver.com").get();
         String actorAuthToken = memberService.genAuthToken(actor);
 
         ResultActions resultActions = mvc
@@ -356,14 +356,14 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("로그아웃 되었습니다."))
                 .andExpect(result -> {
-                    Cookie accessTokenCookie = result.getResponse().getCookie("accessToken");
+                    Cookie accessTokenCookie = result.getResponse().getCookie("access-token");
                     assertThat(accessTokenCookie.getValue()).isEmpty();
                     assertThat(accessTokenCookie.getMaxAge()).isEqualTo(0);
                     assertThat(accessTokenCookie.getPath()).isEqualTo("/");
                     assertThat(accessTokenCookie.isHttpOnly()).isTrue();
                     assertThat(accessTokenCookie.getSecure()).isTrue();
 
-                    Cookie apiKeyCookie = result.getResponse().getCookie("apiKey");
+                    Cookie apiKeyCookie = result.getResponse().getCookie("refresh-token");
                     assertThat(apiKeyCookie.getValue()).isEmpty();
                     assertThat(apiKeyCookie.getMaxAge()).isEqualTo(0);
                     assertThat(apiKeyCookie.getPath()).isEqualTo("/");

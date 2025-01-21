@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import apiClient from "@/utils/api";
 
 // 주문상품 DTO (옵션)
@@ -22,6 +23,8 @@ interface OrderDto {
 }
 
 export default function OrdersPage() {
+    const router = useRouter();
+
     const [orders, setOrders] = useState<OrderDto[]>([]);
     const [status, setStatus] = useState("");
 
@@ -30,7 +33,7 @@ export default function OrdersPage() {
         ORDERED: "주문 완료",
         PAID: "결제 완료",
         DELIVERY: "배송 중",
-        CANCELED: "취소됨"
+        CANCELED: "취소됨",
     };
 
     // 주문 시간을 "YYYY년 MM월 DD일 HH시 mm분" 형식으로 바꾸는 함수
@@ -39,7 +42,6 @@ export default function OrdersPage() {
         const date = new Date(dateString);
 
         const year = date.getFullYear();
-        // 0부터 시작하므로 +1
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
         const hours = String(date.getHours()).padStart(2, "0");
@@ -49,6 +51,7 @@ export default function OrdersPage() {
         return `${year}년 ${month}월 ${day}일 ${hours}시 ${minutes}분`;
     };
 
+    // 주문 목록 가져오기
     const fetchOrders = async () => {
         try {
             // /user/orders/mem -> OrderDto[] 형태 응답 가정
@@ -58,9 +61,23 @@ export default function OrdersPage() {
             setStatus("주문 목록 가져오기 성공");
         } catch (error: any) {
             console.error("주문 내역 조회 실패:", error);
-            setStatus(
-                "주문 목록 가져오기 실패: " + (error.response?.data?.msg || error.message)
-            );
+            setStatus("주문 목록 가져오기 실패: " + (error.response?.data?.msg || error.message));
+        }
+    };
+
+    // 주문 삭제
+    const deleteOrder = async (orderId: number) => {
+        if (!confirm(`정말 주문 ${orderId}를 삭제하시겠습니까?`)) return;
+
+        try {
+            // 예: DELETE /user/orders/1
+            await apiClient.delete(`/user/orders/${orderId}`);
+            // 프론트 상태에서도 제거
+            setOrders((prev) => prev.filter((o) => o.id !== orderId));
+            alert(`주문 ${orderId}가 삭제되었습니다.`);
+        } catch (error: any) {
+            console.error("주문 삭제 실패:", error);
+            alert("주문 삭제에 실패했습니다. 다시 시도해주세요.");
         }
     };
 
@@ -73,20 +90,26 @@ export default function OrdersPage() {
             <div style={styles.section}>
                 <h1 style={styles.title}>주문 페이지</h1>
                 <button style={styles.button} onClick={fetchOrders}>
-                    주문 목록 가져오기
+                    주문 목록 새로고침
                 </button>
                 <p style={styles.status}>{status}</p>
 
                 <div style={styles.orders}>
                     {orders.length > 0 ? (
-                        orders.map((order, idx) => {
-                            // OrderType -> 한글 상태
+                        orders.map((order) => {
                             const orderStatus = orderStatusMap[order.orderType] || order.orderType;
-                            // 주문 시간 포맷
                             const formattedDate = formatOrderDate(order.order_date);
 
                             return (
-                                <div key={idx} style={styles.orderItem}>
+                                <div key={order.id} style={styles.orderItem}>
+                                    {/* 오른쪽 상단 삭제 버튼 */}
+                                    <button
+                                        style={styles.deleteButton}
+                                        onClick={() => deleteOrder(order.id)}
+                                    >
+                                        삭제
+                                    </button>
+
                                     <p>
                                         <strong>주문 ID:</strong> {order.id}
                                     </p>
@@ -108,6 +131,22 @@ export default function OrdersPage() {
                     )}
                 </div>
             </div>
+
+            {/* 우측 상단에 "주문하기" 및 "로그아웃" 버튼 추가 */}
+            <div style={styles.topRight}>
+                <button
+                    style={styles.orderButton}
+                    onClick={() => router.push("/")}
+                >
+                    주문하기
+                </button>
+                <button
+                    style={styles.logoutButton}
+                    onClick={() => router.push("/login")}
+                >
+                    로그아웃
+                </button>
+            </div>
         </div>
     );
 }
@@ -122,6 +161,7 @@ const styles = {
         fontFamily: "Arial, sans-serif",
         backgroundColor: "#f4f4f4",
         minHeight: "100vh",
+        position: "relative" as const,
     },
     section: {
         width: "80%",
@@ -159,6 +199,7 @@ const styles = {
         borderRadius: "5px",
     },
     orderItem: {
+        position: "relative" as const,
         padding: "10px",
         marginBottom: "5px",
         backgroundColor: "#fff",
@@ -167,9 +208,43 @@ const styles = {
         color: "#333",
         wordWrap: "break-word" as const,
     },
+    deleteButton: {
+        position: "absolute" as const,
+        top: "10px",
+        right: "10px",
+        backgroundColor: "#ff5252",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        padding: "5px 10px",
+        cursor: "pointer",
+    },
     divider: {
         marginTop: "10px",
         border: "none",
         borderTop: "1px solid #eee",
+    },
+    topRight: {
+        position: "absolute" as const,
+        top: "10px",
+        right: "20px",
+        display: "flex",
+        gap: "10px",
+    },
+    orderButton: {
+        backgroundColor: "#0070f3",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        padding: "8px 12px",
+        cursor: "pointer",
+    },
+    logoutButton: {
+        backgroundColor: "#ff5252",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        padding: "8px 12px",
+        cursor: "pointer",
     },
 };

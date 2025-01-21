@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import apiClient from "@/utils/api";
 
 interface Product {
@@ -11,7 +12,8 @@ interface Product {
 }
 
 export default function ProductManagementPage() {
-    const [products, setProducts] = useState<Product[]>([]); // 상품 목록 상태
+    const router = useRouter();
+    const [products, setProducts] = useState<Product[]>([]);
     const [name, setName] = useState(""); // 제품명
     const [price, setPrice] = useState(0); // 가격
     const [description, setDescription] = useState(""); // 설명
@@ -33,7 +35,7 @@ export default function ProductManagementPage() {
             // 상태 메시지 업데이트
             setStatus("제품 등록 성공: " + response.data.msg);
 
-            // 등록된 상품을 목록에 추가
+            // 등록된 상품을 목록에 추가 (아이디는 response.data.id 에서 받아온다고 가정)
             const newProduct = {
                 id: response.data.id,
                 name,
@@ -42,8 +44,13 @@ export default function ProductManagementPage() {
             };
             setProducts((prevProducts) => [...prevProducts, newProduct]);
 
-            resetForm(); // 폼 초기화
-        } catch (error) {
+            // 폼 초기화
+            resetForm();
+
+            // alert 메시지를 띄운 후 확인을 누르면 홈("/")으로 이동
+            alert("제품이 등록되었습니다.");
+            router.push("/");
+        } catch (error: any) {
             console.error("오류 발생:", error);
             setStatus("오류 발생: " + (error.response?.data?.msg || error.message));
         }
@@ -153,7 +160,7 @@ export default function ProductManagementPage() {
 const styles = {
     container: {
         display: "flex",
-        flexDirection: "row",
+        flexDirection: "row" as const,
         gap: "20px",
         padding: "20px",
         fontFamily: "Arial, sans-serif",
@@ -205,7 +212,7 @@ const styles = {
         border: "1px solid #ddd",
         borderRadius: "5px",
         fontSize: "14px",
-        resize: "none",
+        resize: "none" as const,
         height: "80px",
     },
     select: {
@@ -223,7 +230,7 @@ const styles = {
         border: "none",
         borderRadius: "5px",
         fontSize: "16px",
-        fontWeight: "bold",
+        fontWeight: "bold" as const,
         cursor: "pointer",
     },
     status: {
@@ -233,7 +240,7 @@ const styles = {
     },
     productList: {
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "column" as const,
         gap: "10px",
     },
     productItem: {

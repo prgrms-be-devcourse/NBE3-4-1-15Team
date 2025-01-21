@@ -71,6 +71,5 @@ public class BaseInitData {
                 ProductType.CAFFEINE,
                 100
         );
-        // 필요시 더 추가...
     }
 }
