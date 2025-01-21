@@ -7,6 +7,7 @@ import com.nbe.NBE3_4_1_Team15.domain.member.dto.MemberDto;
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.domain.member.service.AuthService;
 import com.nbe.NBE3_4_1_Team15.domain.member.service.MemberService;
+import com.nbe.NBE3_4_1_Team15.domain.member.type.MemberType;
 import com.nbe.NBE3_4_1_Team15.global.exceptions.ServiceException;
 import com.nbe.NBE3_4_1_Team15.global.rq.Rq;
 import com.nbe.NBE3_4_1_Team15.global.rsData.RsData;
@@ -27,13 +28,15 @@ public class MemberController {
     record MemberJoinReqBody(
             @NotBlank String email,
             @NotBlank String password,
-            @NotBlank String nickname
+            @NotBlank String address,
+            @NotBlank String nickname,
+            @NotBlank MemberType memberType
     ){}
 
     @PostMapping("/join")
     @Transactional
     public RsData<MemberDto> join(@RequestBody @Valid MemberJoinReqBody reqBody) {
-        Member member = memberService.join(reqBody.email, reqBody.password, reqBody.nickname);
+        Member member = memberService.join(reqBody.email, reqBody.password, reqBody.address, reqBody.nickname, reqBody.memberType);
 
         return new RsData<>(
                 "201-1",

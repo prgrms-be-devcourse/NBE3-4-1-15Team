@@ -7,6 +7,7 @@ import lombok.Getter;
 
 @Getter
 public class ProductDto {
+    private long id;
     private long sellerId;
     private String name;
     private int price;
@@ -15,6 +16,7 @@ public class ProductDto {
     private int stock;
 
     public ProductDto(Product product) {
+        this.id = product.getId();
         this.sellerId = product.getSeller().getId();
         this.name = product.getName();
         this.price = product.getPrice();

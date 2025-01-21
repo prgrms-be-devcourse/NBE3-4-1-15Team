@@ -13,23 +13,31 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderCommonService {
+
     private final OrderRepository orderRepository;
 
-    // 특정 주문 조회
+    /**
+     * 주문 ID로 단건 조회
+     */
     public OrderDto findById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id));
-        return OrderDto.of(order);
+        return OrderDto.of(order);  // OrderDto.of(...)에서 cart->cartProducts를 처리
     }
 
-    // 특정 회원의 주문 내역 조회
+    /**
+     * 특정 회원의 주문 목록
+     */
     public List<OrderDto> findByConsumerId(Long memberId) {
-        return orderRepository.findAllByConsumer_Id(memberId).stream()
-                .map(OrderDto::of)
+        return orderRepository.findAllByConsumer_Id(memberId)
+                .stream()
+                .map(OrderDto::of) // 여기서 Order -> OrderDto 변환
                 .collect(Collectors.toList());
     }
 
-    // 특정 회원의 배송 상태에 따른 주문 조회
+    /**
+     * 특정 회원 + 주문 상태로 필터링 조회 (옵션)
+     */
     public List<OrderDto> findOrdersByMemberIdAndType(Long memberId, OrderType orderType) {
         return orderRepository.findAllByConsumer_Id(memberId).stream()
                 .filter(order -> orderType == null || order.getOrderType() == orderType)
