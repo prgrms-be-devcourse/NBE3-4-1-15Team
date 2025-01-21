@@ -2,17 +2,23 @@ package com.nbe.NBE3_4_1_Team15.domain.member.service;
 
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
 import com.nbe.NBE3_4_1_Team15.standard.util.Ut;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
-public class AuthTokenService {
-//    @Value("${custom.jwt.secretKey}")
+@RequiredArgsConstructor
+public class AuthService {
+    @Value("${custom.jwt.secretKey}")
     private String jwtSecretKey;
 
-//    @Value("${custom.accessToken.expirationSeconds}")
+    @Value("${custom.accessToken.expirationSeconds}")
     private long accessTokenExpirationSeconds;
+
+    private final PasswordEncoder passwordEncoder;
 
     public String genAccessToken(Member member) {
         long id = member.getId();
@@ -35,6 +41,14 @@ public class AuthTokenService {
         String email = (String) parsedPayload.get("email");
 
         return Map.of("id", id, "email", email);
+    }
+
+    public String encode(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    public boolean matches(String password, String encodedPassword) {
+        return passwordEncoder.matches(password, encodedPassword);
     }
 }
 

@@ -13,11 +13,9 @@ import java.util.Collection;
 @Getter
 public class SecurityUser extends User {
     private final long id;
-    private final String email; // 가독성을 위한 필드(username -> email)
 
     public SecurityUser(long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         super(email, password, authorities);
         this.id = id;
-        this.email = email;
     }
 }

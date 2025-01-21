@@ -62,7 +62,7 @@ public class Rq { // RequestScope에서 사용하는 클래스
                 .map(Authentication::getPrincipal)
                 .filter(principal -> principal instanceof SecurityUser) // SecurityContext에 있는 값이 우리의 양식이 맞는지, findById를 위해 SecurityUser 사용
                 .map(principal -> (SecurityUser) principal) // 맞다면 getter사용을 위해 형변환 사용
-                .map(securityUser -> new Member(securityUser.getId(), securityUser.getEmail())) //이렇게 사용하기 위해 엔티티에 생성자 추가함
+                .map(securityUser -> new Member(securityUser.getId(), securityUser.getUsername())) //이렇게 사용하기 위해 엔티티에 생성자 추가함
                 .orElse(null); // 만약 잘 안되면 null 반환
     }
 

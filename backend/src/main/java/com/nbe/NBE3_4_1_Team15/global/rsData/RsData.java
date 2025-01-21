@@ -21,6 +21,6 @@ public class RsData<T> {
 
     @JsonIgnore
     public int getStatusCode() {
-        return Integer.parseInt(resultCode.split("_")[0]);
+        return Integer.parseInt(resultCode.split("-")[0]);
     }
 }

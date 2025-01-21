@@ -24,6 +24,8 @@ public class SecurityConfig {
                         authorizeHttpRequests
                                 .requestMatchers("/h2-console/**", "/api/users/register","/orders/**")
                                 .permitAll()
+                                .requestMatchers("/api/*/members/login", "/api/*/members/logout", "/api/*/members/join")
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated())
                 .headers(

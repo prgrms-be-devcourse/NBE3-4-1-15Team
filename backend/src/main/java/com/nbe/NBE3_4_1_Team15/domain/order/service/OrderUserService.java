@@ -29,8 +29,9 @@ public class OrderUserService {
         Member consumer = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
-        Cart cart = cartRepository.findByConsumer_Id(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Cart not found for memberId: " + memberId));
+//        Cart cart = cartRepository.findByConsumer_Id(memberId)
+//                .orElseThrow(() -> new IllegalArgumentException("Cart not found for memberId: " + memberId));
+        Cart cart = consumer.getCart();
 
         // 디버깅: 장바구니 내용 확인
         System.out.println("Cart ID: " + cart.getId());

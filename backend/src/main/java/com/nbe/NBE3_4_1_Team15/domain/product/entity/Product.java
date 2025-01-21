@@ -1,7 +1,9 @@
 package com.nbe.NBE3_4_1_Team15.domain.product.entity;
 
 import com.nbe.NBE3_4_1_Team15.domain.member.entity.Member;
+import com.nbe.NBE3_4_1_Team15.domain.member.type.MemberType;
 import com.nbe.NBE3_4_1_Team15.domain.product.dto.ProductUpdateDto;
+import com.nbe.NBE3_4_1_Team15.domain.product.type.ProductType;
 import com.nbe.NBE3_4_1_Team15.global.jpa.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,12 +15,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product extends BaseTime {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member member;
+    private Member seller;
 
     @Column(nullable = false, length = 30)
     private String name;
@@ -30,7 +32,8 @@ public class Product extends BaseTime {
     private String description;
 
     @Column(nullable = false)
-    private String category; // 일단 간단하게 String으로 설정. 나중에 객체로 변경 해야할 수도 있음
+    @Enumerated(EnumType.STRING)
+    private ProductType productType;
 
     @Column(nullable = false)
     private Integer stock;

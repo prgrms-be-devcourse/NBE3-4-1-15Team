@@ -38,7 +38,7 @@ public class Member extends BaseTime {
     @Enumerated(EnumType.STRING)
     private MemberType memberType;
 
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "seller", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<Product> products; // 판매상품, 회원 도메인에 생명주기가 의존적이므로 영속성 전이 PERSIST, REMOVE 적용
 
     @OneToOne
@@ -69,5 +69,10 @@ public class Member extends BaseTime {
             authorities.add("ROLE_MEMBER");
         }
         return authorities;
+    }
+
+    public boolean matchPassword(String password) {
+
+        return this.password.equals(password);
     }
 }

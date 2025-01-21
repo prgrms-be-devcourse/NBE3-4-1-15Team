@@ -17,9 +17,9 @@ import java.time.LocalDateTime;
 public class BaseTime extends BaseEntity {
     @CreatedDate
     @Setter(AccessLevel.PRIVATE)
-    private LocalDateTime createAt;
+    private LocalDateTime createDate;
 
     @LastModifiedDate
     @Setter(AccessLevel.PRIVATE)
-    private LocalDateTime updateAt;
+    private LocalDateTime modifyDate;
 }
