@@ -49,7 +49,7 @@ public class SecurityConfig {
                                             response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401 (인증정보 없음)
                                             response.getWriter().write(
                                                     Ut.json.toJson(
-                                                            new RsData<>("401-1", "사용자 정보가 올바르지 않습니다.")
+                                                            new RsData<>("401-1", "사용자 인증정보가 올바르지 않습니다.")
                                                     )
                                             );
                                         }
