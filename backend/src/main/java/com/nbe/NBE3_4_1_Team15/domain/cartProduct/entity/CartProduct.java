@@ -14,11 +14,6 @@ import lombok.*;
 @AllArgsConstructor // 모든 필드를 사용하는 생성자 자동 생성
 // CartProduct.java git 업로드용 주석 추가
 public class CartProduct extends BaseTime {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;

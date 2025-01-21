@@ -1,238 +1,229 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import apiClient from "@/utils/api";
 
-export default function OrdersPage() {
-    const [orders, setOrders] = useState([]);
-    const [orderId, setOrderId] = useState("");
-    const [memberId, setMemberId] = useState(""); // memberId 상태 추가
-    const [status, setStatus] = useState("");
-    const [totalPrice, setTotalPrice] = useState(""); // Total Price 상태 추가
+interface Product {
+    id: number;
+    name: string;
+    price: number;
+    stock: number;
+}
 
+export default function HomePage() {
+    const router = useRouter();
+    const [products, setProducts] = useState<Product[]>([]); // 상품 목록 상태
+    const [cart, setCart] = useState<{ [key: number]: number }>({}); // 로컬 장바구니
+    const [status, setStatus] = useState(""); // 상태 메시지
 
-    // 모든 주문 조회
-    const fetchAllOrders = async () => {
+    // 1. 상품 목록 불러오기
+    const fetchProducts = async () => {
         try {
-            const response = await apiClient.get("/admin/orders");
-            setOrders(response.data);
-            setStatus("모든 주문을 성공적으로 가져왔습니다.");
-        } catch (error) {
-            setStatus("오류 발생: " + error.message);
+            const response = await apiClient.get("/api/v1/products");
+            const productList = response.data.data; // RsData.data 내 상품 리스트
+            setProducts(productList);
+            setStatus("상품 목록을 성공적으로 가져왔습니다.");
+        } catch (error: any) {
+            console.error("상품 목록 가져오기 실패:", error);
+            setStatus("상품 목록 가져오기 실패: " + (error.response?.data?.msg || error.message));
         }
     };
 
-    // 특정 주문 조회
-    const fetchOrderById = async () => {
-        try {
-            const response = await apiClient.get(`/user/orders/${orderId}`);
-            setOrders([response.data]);
-            setStatus("특정 주문을 성공적으로 가져왔습니다.");
-        } catch (error) {
-            setStatus("오류 발생: " + error.message);
-        }
-    };
-
-    // 특정 회원의 주문 조회
-    const fetchOrdersByMember = async () => {
-        try {
-            const response = await apiClient.get(`/user/orders/mem`, {
-                params: { memberId }, // memberId를 params로 전달
-            });
-            setOrders(response.data);
-            setStatus("특정 회원의 주문을 성공적으로 가져왔습니다.");
-        } catch (error) {
-            setStatus("오류 발생: " + error.message);
-        }
-    };
-
-    // 주문 생성
-    const createOrder = async () => {
-        if (!memberId) {
-            alert("Member ID와 Total Price를 모두 입력해주세요!");
+    // 2. 장바구니에 상품 추가 (프론트 로컬 + 백엔드 DB)
+    const addToCart = async (id: number) => {
+        const product = products.find((p) => p.id === id);
+        if (!product) {
+            console.error("상품을 찾을 수 없습니다.");
             return;
         }
 
+        // (2-1) 로컬 장바구니 수량 증가
+        setCart((prevCart) => ({
+            ...prevCart,
+            [id]: (prevCart[id] || 0) + 1,
+        }));
+
+        // (2-2) 서버 장바구니에 추가 API 호출
         try {
-            const response = await apiClient.post("/user/orders/create", null, {
-                params: {
-                    memberId
-                },
+            await apiClient.post("/api/v1/cart/add", {
+                productId: id,
+                quantity: 1, // 여기서는 테스트로 1씩 담기
             });
-            setStatus("주문이 성공적으로 생성되었습니다: " + response.data.id);
-            setOrders((prevOrders) => [...prevOrders, response.data]); // 새로운 주문을 목록에 추가
-        } catch (error) {
-            setStatus("오류 발생: " + error.message);
+            console.log("백엔드 Cart에 상품 추가 완료");
+        } catch (error: any) {
+            console.error("백엔드 Cart 담기 실패:", error);
+            setStatus("백엔드 Cart 담기 실패: " + (error.response?.data?.msg || error.message));
         }
     };
 
+    // 3. 총 금액 계산 (로컬 cart 기준)
+    const totalPrice = Object.entries(cart).reduce((total, [id, count]) => {
+        const product = products.find((p) => p.id === Number(id));
+        return product ? total + product.price * count : total;
+    }, 0);
 
-    // 주문 삭제
-    const deleteOrder = async () => {
+    // 4. “결제하기” 버튼 → 주문 생성 (백엔드 /user/orders/create)
+    const handleCheckout = async () => {
         try {
-            await apiClient.delete(`/user/orders/${orderId}`);
-            setStatus(`주문 ID ${orderId}이 성공적으로 삭제되었습니다.`);
-            fetchAllOrders(); // 삭제 후 다시 주문 목록 갱신
-        } catch (error) {
-            setStatus("오류 발생: " + error.message);
+            const response = await apiClient.post("/user/orders/create");
+            if (response.status === 200) {
+                console.log("주문 생성 성공:", response.data);
+                alert("주문이 성공적으로 생성되었습니다.");
+                router.push("/order");
+            }
+        } catch (error: any) {
+            console.error("주문 생성 실패:", error);
+            alert("주문 생성에 실패했습니다. 다시 시도해주세요.");
+            router.push("/order");
         }
     };
+
+    // 컴포넌트 마운트 시 API 호출
+    useEffect(() => {
+        fetchProducts();
+    }, []);
 
     return (
-        <div style={styles.container}>
-            {/* 버튼 섹션 */}
-            <div style={styles.buttonSection}>
-                <h2 style={styles.title}>주문 관리</h2>
-                <p style={styles.status}>{status}</p>
-                <button style={styles.button} onClick={fetchAllOrders}>
-                    모든 주문 조회
-                </button>
-                <div style={styles.inputGroup}>
-                    <input
-                        type="text"
-                        placeholder="Member ID 입력"
-                        value={memberId}
-                        onChange={(e) => setMemberId(e.target.value)}
-                        style={styles.input}
-                    />
-                    <input
-                        type="number"
-                        placeholder="Total Price 입력"
-                        value={totalPrice}
-                        onChange={(e) => setTotalPrice(e.target.value)}
-                        style={styles.input}
-                    />
-                    <button style={styles.button} onClick={createOrder}>
-                        주문 생성
-                    </button>
-                </div>
-                <div style={styles.inputGroup}>
-                    <input
-                        type="text"
-                        placeholder="Member ID 입력"
-                        value={memberId}
-                        onChange={(e) => setMemberId(e.target.value)} // memberId 업데이트
-                        style={styles.input}
-                    />
-                    <button style={styles.button} onClick={fetchOrdersByMember}>
-                        특정 회원의 주문 조회
-                    </button>
-                </div>
-                <button style={styles.button} onClick={createOrder}>
-                    주문 생성
-                </button>
-                <div style={styles.inputGroup}>
-                    <input
-                        type="text"
-                        placeholder="Order ID 입력"
-                        value={orderId}
-                        onChange={(e) => setOrderId(e.target.value)}
-                        style={styles.input}
-                    />
-                    <button style={styles.button} onClick={deleteOrder}>
-                        주문 삭제
-                    </button>
-                </div>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "20px",
+                padding: "20px",
+                fontFamily: "Arial, sans-serif",
+                color: "#333",
+                backgroundColor: "#f9f9f9",
+                height: "100vh",
+            }}
+        >
+            {/* 상품 목록 */}
+            <div
+                style={{
+                    flex: 1,
+                    backgroundColor: "#fff",
+                    padding: "20px",
+                    borderRadius: "10px",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                }}
+            >
+                <h2 style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "20px" }}>
+                    상품 목록
+                </h2>
+                {status && <p style={{ color: "#0070f3" }}>{status}</p>}
+                {products.length > 0 ? (
+                    products.map((product) => (
+                        <div
+                            key={product.id}
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginBottom: "15px",
+                                padding: "15px",
+                                border: "1px solid #ddd",
+                                borderRadius: "5px",
+                                backgroundColor: "#f8f8f8",
+                            }}
+                        >
+                            <div>
+                                <strong style={{ display: "block", marginBottom: "5px" }}>
+                                    {product.name}
+                                </strong>
+                                <p style={{ margin: 0, color: "#555" }}>
+                                    {product.price.toLocaleString()}원
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => addToCart(product.id)}
+                                style={{
+                                    padding: "10px 15px",
+                                    backgroundColor: "#0070f3",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "5px",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                추가
+                            </button>
+                        </div>
+                    ))
+                ) : (
+                    <p>상품이 없습니다.</p>
+                )}
             </div>
 
-            {/* 주문 목록 섹션 */}
-            <div style={styles.listSection}>
-                <h2 style={styles.listTitle}>주문 목록</h2>
-                <div style={styles.orders}>
-                    {orders.length > 0 ? (
-                        orders.map((order, index) => (
-                            <div key={index} style={styles.listItem}>
-                                {JSON.stringify(order, null, 2)}
+            {/* Summary */}
+            <div
+                style={{
+                    flex: 1,
+                    backgroundColor: "#fff",
+                    padding: "20px",
+                    borderRadius: "10px",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                }}
+            >
+                <h2 style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "20px" }}>
+                    Summary
+                </h2>
+                <div
+                    style={{
+                        height: "400px",
+                        overflowY: "auto",
+                        border: "1px solid #ddd",
+                        borderRadius: "5px",
+                        padding: "10px",
+                        marginBottom: "20px",
+                    }}
+                >
+                    {Object.entries(cart).map(([id, count]) => {
+                        const product = products.find((p) => p.id === Number(id));
+                        if (!product) {
+                            return null;
+                        }
+                        return (
+                            <div
+                                key={`cart-${id}`}
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    marginBottom: "5px",
+                                    fontSize: "14px",
+                                }}
+                            >
+                                <span>
+                                    {product.name}{" "}
+                                    <strong style={{ color: "#0070f3" }}>{count}개</strong>
+                                </span>
+                                <span>{(product.price * count).toLocaleString()}원</span>
                             </div>
-                        ))
-                    ) : (
-                        <p>주문이 없습니다.</p>
-                    )}
+                        );
+                    })}
+                </div>
+                <div style={{ marginBottom: "20px" }}>
+                    <p style={{ fontSize: "16px", fontWeight: "bold" }}>
+                        총금액:{" "}
+                        <span style={{ color: "#0070f3" }}>{totalPrice.toLocaleString()}원</span>
+                    </p>
+                    <button
+                        onClick={handleCheckout}
+                        style={{
+                            width: "100%",
+                            padding: "15px",
+                            backgroundColor: "#0070f3",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "5px",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                            cursor: "pointer",
+                        }}
+                    >
+                        결제하기
+                    </button>
                 </div>
             </div>
         </div>
     );
 }
-
-const styles = {
-    container: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-        backgroundColor: "#f4f4f4",
-        minHeight: "100vh",
-        gap: "20px", // 섹션 간 간격 추가
-    },
-    buttonSection: {
-        width: "35%", // 더 좁게 조정
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        padding: "20px",
-        backgroundColor: "#fff",
-        borderRadius: "10px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        overflow: "hidden", // 내용이 박스 밖으로 튀어나가지 않도록 처리
-    },
-    button: {
-        width: "100%",
-        padding: "10px",
-        marginBottom: "10px",
-        backgroundColor: "#007bff",
-        color: "white",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-        fontSize: "1rem",
-        textAlign: "center",
-    },
-    inputGroup: {
-        display: "flex",
-        flexDirection: "column", // 수직 정렬
-        gap: "10px",
-        marginBottom: "20px", // 간격 추가
-        width: "100%", // 입력 필드가 박스에 맞게 조정
-    },
-    input: {
-        width: "100%",
-        padding: "10px",
-        border: "1px solid #ccc",
-        borderRadius: "5px",
-        color: "black",
-    },
-    listSection: {
-        width: "60%", // 더 좁게 조정
-        padding: "20px",
-        backgroundColor: "#fff",
-        borderRadius: "10px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        maxHeight: "400px", // 목록 섹션의 최대 높이 제한
-        overflowY: "auto", // 세로 스크롤 활성화
-    },
-    listTitle: {
-        fontSize: "1.5rem",
-        marginBottom: "10px",
-        color: "#333",
-    },
-    listItem: {
-        padding: "10px",
-        marginBottom: "5px",
-        backgroundColor: "#f9f9f9",
-        borderRadius: "5px",
-        color: "black",
-        fontSize: "1rem",
-        wordWrap: "break-word", // 긴 텍스트 줄바꿈 처리
-    },
-    title: {
-        fontSize: "1.5rem",
-        marginBottom: "10px",
-        color: "#333",
-    },
-    status: {
-        fontSize: "1rem",
-        color: "#007bff",
-        marginBottom: "20px",
-    },
-};

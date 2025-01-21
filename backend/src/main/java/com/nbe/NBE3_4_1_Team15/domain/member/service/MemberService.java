@@ -50,6 +50,7 @@ public class MemberService {
     }
 
     public Member getMemberFromAccessToken(String accessToken) {
+        System.out.println("Access Token 검증 중: " + accessToken);
         Map<String, Object> payload = authService.payload(accessToken);
 
         if (payload == null) {

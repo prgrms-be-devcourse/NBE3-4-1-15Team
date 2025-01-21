@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,25 +27,40 @@ public class OrderUserService {
     // 주문 생성
     @Transactional
     public OrderDto create(Long memberId) {
+        // 1. 회원 정보 조회
         Member consumer = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Member not found: ID " + memberId));
 
-//        Cart cart = cartRepository.findByConsumer_Id(memberId)
-//                .orElseThrow(() -> new IllegalArgumentException("Cart not found for memberId: " + memberId));
+        // 2. 장바구니 확인
         Cart cart = consumer.getCart();
-
-        // 디버깅: 장바구니 내용 확인
-        System.out.println("Cart ID: " + cart.getId());
-        System.out.println("Number of Products in Cart: " + cart.getCartProducts().size());
-        for (CartProduct cp : cart.getCartProducts()) {
-            System.out.println("Product Name: " + cp.getProduct().getName());
-            System.out.println("Price: " + cp.getProduct().getPrice());
-            System.out.println("Quantity: " + cp.getQuantity());
+        if (cart == null) {
+            // 장바구니가 없을 경우 자동 생성 (필요 시)
+            cart = Cart.builder()
+                    .member(consumer)
+                    .cartProducts(List.of()) // 빈 장바구니 초기화
+                    .build();
+            cartRepository.save(cart);
         }
 
-        int totalPrices = cart.getTotalPrice();
-        System.out.println("Total Price: " + totalPrices);
+        // 3. 장바구니 내 상품 확인
+        if (cart.getCartProducts() == null || cart.getCartProducts().isEmpty()) {
+            throw new IllegalStateException("장바구니에 상품이 없습니다. 주문을 생성할 수 없습니다.");
+        }
 
+        // 4. 장바구니 내 상품의 유효성 검사
+        for (CartProduct cp : cart.getCartProducts()) {
+            if (cp == null || cp.getProduct() == null) {
+                throw new IllegalStateException("장바구니에 유효하지 않은 상품이 포함되어 있습니다.");
+            }
+        }
+
+        // 5. 총 금액 계산
+        int totalPrices = cart.getTotalPrice();
+        if (totalPrices <= 0) {
+            throw new IllegalStateException("장바구니의 총 금액이 0원 이하입니다. 주문을 생성할 수 없습니다.");
+        }
+
+        // 6. 주문 생성
         Order order = Order.builder()
                 .consumer(consumer)
                 .cart(cart)
@@ -53,15 +69,17 @@ public class OrderUserService {
                 .orderDate(LocalDateTime.now())
                 .build();
 
-        // 주문 저장
+        // 7. 주문 저장
         Order savedOrder = orderRepository.save(order);
 
-        // 카트 초기화
+        // 8. 카트 초기화
         cart.getCartProducts().clear();
         cartRepository.save(cart);
 
+        // 9. 생성된 주문 반환
         return OrderDto.of(savedOrder);
     }
+
 
 
 

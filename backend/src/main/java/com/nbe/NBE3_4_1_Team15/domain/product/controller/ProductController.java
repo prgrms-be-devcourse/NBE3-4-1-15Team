@@ -88,6 +88,12 @@ public class ProductController {
     @GetMapping
     public RsData<List<ProductDto>> getProducts() {
         List<Product> products = productService.getProducts();
+
+        // 디버깅용 로그
+        products.forEach(product -> {
+            System.out.println("Product ID: " + product.getId());
+        });
+
         return new RsData<>(
                 "200-1",
                 "전체 상품 조회가 완료되었습니다.",
